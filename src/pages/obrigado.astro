@@ -1,0 +1,37 @@
+---
+import '../styles/global.css';
+
+const status = Astro.url.searchParams.get('status');
+const isPending = status === 'pending';
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Obrigado – Ygor Luan Academy</title>
+  </head>
+  <body class="bg-zinc-950 text-white min-h-screen flex items-center justify-center px-4">
+    <div class="max-w-lg mx-auto text-center">
+      <div class="text-6xl mb-6">{isPending ? '⏳' : '🎉'}</div>
+
+      <h1 class="text-3xl font-display font-bold mb-4">
+        {isPending ? 'Pagamento em análise' : 'Compra realizada com sucesso!'}
+      </h1>
+
+      <p class="text-zinc-400 mb-8 leading-relaxed">
+        {isPending
+          ? 'Seu pagamento está sendo processado. Você receberá um e-mail assim que for aprovado.'
+          : 'Você receberá um e-mail com seus dados de acesso em breve. Fique de olho na caixa de entrada (e no spam)!'}
+      </p>
+
+      {!isPending && (
+        <a href="/login" class="btn-primary">
+          Acessar a plataforma
+        </a>
+      )}
+    </div>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+---
+import DashboardLayout from '../../components/layout/DashboardLayout.astro';
+import { OrdersService } from '../../services/orders.service';
+import { UsersService } from '../../services/users.service';
+import { LessonsService } from '../../services/lessons.service';
+import { formatCurrency } from '../../lib/utils';
+
+const { session } = Astro.locals;
+const [totalRevenue, totalStudents, lessons] = await Promise.all([
+  OrdersService.getTotalRevenue(),
+  UsersService.countStudents(),
+  LessonsService.getAllAdmin(),
+]);
+---
+
+<DashboardLayout title="Admin" session={session!}>
+  <h1 class="text-2xl font-display font-bold mb-6">Painel Administrativo</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    <div class="card text-center">
+      <p class="text-3xl font-bold text-brand-400">{formatCurrency(totalRevenue)}</p>
+      <p class="text-sm text-zinc-400 mt-1">Receita Total</p>
+    </div>
+    <div class="card text-center">
+      <p class="text-3xl font-bold text-white">{totalStudents}</p>
+      <p class="text-sm text-zinc-400 mt-1">Alunos</p>
+    </div>
+    <div class="card text-center">
+      <p class="text-3xl font-bold text-white">{lessons.length}</p>
+      <p class="text-sm text-zinc-400 mt-1">Aulas</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <a href="/admin/aulas" class="card hover:border-zinc-600 transition-colors">
+      <h2 class="font-semibold mb-1">Aulas</h2>
+      <p class="text-sm text-zinc-400">Criar, editar e publicar aulas</p>
+    </a>
+    <a href="/admin/alunos" class="card hover:border-zinc-600 transition-colors">
+      <h2 class="font-semibold mb-1">Alunos</h2>
+      <p class="text-sm text-zinc-400">Lista de alunos cadastrados</p>
+    </a>
+    <a href="/admin/vendas" class="card hover:border-zinc-600 transition-colors">
+      <h2 class="font-semibold mb-1">Vendas</h2>
+      <p class="text-sm text-zinc-400">Relatório de pedidos</p>
+    </a>
+  </div>
+</DashboardLayout>

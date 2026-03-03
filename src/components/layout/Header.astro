@@ -1,0 +1,29 @@
+---
+interface Props {
+  transparent?: boolean;
+}
+const { transparent = false } = Astro.props;
+---
+
+<header class:list={[
+  'fixed top-0 left-0 right-0 z-50 transition-colors',
+  transparent ? 'bg-transparent' : 'bg-zinc-950/90 backdrop-blur border-b border-zinc-800',
+]}>
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href="/" class="text-xl font-display font-bold text-white">
+      Ygor Luan <span class="text-brand-400">Academy</span>
+    </a>
+
+    <nav class="flex items-center gap-4">
+      <a href="#beneficios" class="text-sm text-zinc-400 hover:text-white transition-colors hidden md:block">
+        Benefícios
+      </a>
+      <a href="#faq" class="text-sm text-zinc-400 hover:text-white transition-colors hidden md:block">
+        FAQ
+      </a>
+      <a href="/login" class="btn-secondary text-sm px-4 py-2">
+        Entrar
+      </a>
+    </nav>
+  </div>
+</header>

@@ -2,13 +2,42 @@
   "name": "ygor-luan-pro",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "pnpm@10.28.2",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "type-check": "astro check",
+    "lint": "astro check",
+    "test": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "astro": "^5.17.1"
+    "@astrojs/node": "^9.2.2",
+    "@astrojs/react": "^4.4.2",
+    "@astrojs/tailwind": "^5.1.4",
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.98.0",
+    "astro": "^5.17.1",
+    "mercadopago": "^2.5.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "resend": "^4.5.1",
+    "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "autoprefixer": "^10.4.21",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }

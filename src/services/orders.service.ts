@@ -1,0 +1,72 @@
+import { supabase, supabaseAdmin } from '../lib/supabase';
+import type { Order } from '../types';
+
+export class OrdersService {
+  static async getByUserId(userId: string): Promise<Order[]> {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  }
+
+  static async hasActiveAccess(userId: string): Promise<boolean> {
+    const { data } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('status', 'approved')
+      .limit(1)
+      .single();
+
+    return !!data;
+  }
+
+  static async getByPaymentId(paymentId: string): Promise<Order | null> {
+    const { data } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('payment_id', paymentId)
+      .single();
+
+    return data;
+  }
+
+  /** Admin only */
+  static async getAllAdmin(): Promise<Order[]> {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  }
+
+  static async getTotalRevenue(): Promise<number> {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('status', 'approved');
+
+    if (error) throw new Error(error.message);
+    return (data ?? []).reduce((sum, o) => sum + o.amount, 0);
+  }
+
+  /** Webhook only – uses admin client to bypass RLS */
+  static async create(
+    input: Omit<Order, 'id' | 'created_at'>,
+  ): Promise<Order> {
+    const { data, error } = await supabaseAdmin
+      .from('orders')
+      .insert(input)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+  }
+}

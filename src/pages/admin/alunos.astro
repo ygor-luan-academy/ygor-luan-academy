@@ -1,0 +1,37 @@
+---
+import DashboardLayout from '../../components/layout/DashboardLayout.astro';
+import { UsersService } from '../../services/users.service';
+import { formatDate } from '../../lib/utils';
+
+const { session } = Astro.locals;
+const students = (await UsersService.getAllAdmin()).filter((u) => u.role === 'student');
+---
+
+<DashboardLayout title="Alunos" session={session!}>
+  <h1 class="text-2xl font-display font-bold mb-6">Alunos ({students.length})</h1>
+
+  <div class="card overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-zinc-800 text-left">
+          <th class="pb-3 pr-4 font-medium text-zinc-400">Nome</th>
+          <th class="pb-3 pr-4 font-medium text-zinc-400">E-mail</th>
+          <th class="pb-3 font-medium text-zinc-400">Cadastro</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-zinc-800">
+        {students.map((s) => (
+          <tr>
+            <td class="py-3 pr-4 text-white">{s.full_name ?? '—'}</td>
+            <td class="py-3 pr-4 text-zinc-300">{s.email}</td>
+            <td class="py-3 text-zinc-400">{formatDate(s.created_at)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {students.length === 0 && (
+      <p class="text-center text-zinc-400 py-8">Nenhum aluno cadastrado.</p>
+    )}
+  </div>
+</DashboardLayout>

@@ -1,0 +1,64 @@
+import { supabase } from '../lib/supabase';
+import type { UserProgress } from '../types';
+
+export class ProgressService {
+  static async getUserProgress(userId: string): Promise<UserProgress[]> {
+    const { data, error } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  }
+
+  static async getLessonProgress(
+    userId: string,
+    lessonId: string,
+  ): Promise<UserProgress | null> {
+    const { data } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('lesson_id', lessonId)
+      .single();
+
+    return data;
+  }
+
+  static async markComplete(userId: string, lessonId: string): Promise<void> {
+    const { error } = await supabase.from('user_progress').upsert({
+      user_id: userId,
+      lesson_id: lessonId,
+      completed: true,
+      completed_at: new Date().toISOString(),
+    });
+
+    if (error) throw new Error(error.message);
+  }
+
+  static async updateWatchTime(
+    userId: string,
+    lessonId: string,
+    watchTime: number,
+  ): Promise<void> {
+    const { error } = await supabase.from('user_progress').upsert({
+      user_id: userId,
+      lesson_id: lessonId,
+      watch_time: watchTime,
+    });
+
+    if (error) throw new Error(error.message);
+  }
+
+  static async getCompletedCount(userId: string): Promise<number> {
+    const { count, error } = await supabase
+      .from('user_progress')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('completed', true);
+
+    if (error) throw new Error(error.message);
+    return count ?? 0;
+  }
+}

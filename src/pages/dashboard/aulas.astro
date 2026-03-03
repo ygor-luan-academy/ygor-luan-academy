@@ -1,0 +1,69 @@
+---
+import DashboardLayout from '../../components/layout/DashboardLayout.astro';
+import { LessonsService } from '../../services/lessons.service';
+import { ProgressService } from '../../services/progress.service';
+import { formatDuration } from '../../lib/utils';
+
+const { session } = Astro.locals;
+const [lessons, progressList] = await Promise.all([
+  LessonsService.getAll(),
+  ProgressService.getUserProgress(session!.user.id),
+]);
+
+const progressMap = new Map(progressList.map((p) => [p.lesson_id, p]));
+
+// Agrupa por módulo
+const modules = lessons.reduce<Map<number, typeof lessons>>(
+  (acc, lesson) => {
+    const mod = acc.get(lesson.module_number) ?? [];
+    mod.push(lesson);
+    acc.set(lesson.module_number, mod);
+    return acc;
+  },
+  new Map(),
+);
+---
+
+<DashboardLayout title="Aulas" session={session!}>
+  <h1 class="text-2xl font-display font-bold mb-6">Aulas</h1>
+
+  <div class="space-y-8">
+    {[...modules.entries()].map(([moduleNum, moduleLessons]) => (
+      <div>
+        <h2 class="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-3">
+          Módulo {moduleNum}
+        </h2>
+        <div class="space-y-2">
+          {moduleLessons.map((lesson) => {
+            const progress = progressMap.get(lesson.id);
+            const done = progress?.completed ?? false;
+
+            return (
+              <a
+                href={`/dashboard/aula/${lesson.id}`}
+                class:list={[
+                  'card flex items-center gap-4 hover:border-zinc-600 transition-colors',
+                  done && 'border-green-500/20',
+                ]}
+              >
+                <div class:list={[
+                  'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold',
+                  done ? 'bg-green-500/20 text-green-400' : 'bg-zinc-800 text-zinc-400',
+                ]}>
+                  {done ? '✓' : lesson.order_number}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium truncate">{lesson.title}</p>
+                  {lesson.duration_minutes && (
+                    <p class="text-xs text-zinc-500">{formatDuration(lesson.duration_minutes)}</p>
+                  )}
+                </div>
+                <span class="text-zinc-600 text-sm flex-shrink-0">→</span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    ))}
+  </div>
+</DashboardLayout>

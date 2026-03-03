@@ -1,0 +1,44 @@
+---
+const faqs = [
+  {
+    q: 'Por quanto tempo tenho acesso?',
+    a: 'O acesso é vitalício. Você paga uma única vez e tem acesso para sempre, incluindo atualizações futuras.',
+  },
+  {
+    q: 'Como funciona a mentoria 1:1?',
+    a: 'Após a compra, você agenda uma sessão de 60 minutos diretamente no calendário do Ygor Luan através da plataforma.',
+  },
+  {
+    q: 'Preciso ter experiência prévia?',
+    a: 'Não. O curso foi estruturado para atender tanto iniciantes quanto profissionais que querem aperfeiçoar suas técnicas.',
+  },
+  {
+    q: 'Como recebo meu acesso?',
+    a: 'Imediatamente após a confirmação do pagamento, você recebe um e-mail com seus dados de acesso à plataforma.',
+  },
+  {
+    q: 'Há garantia de reembolso?',
+    a: 'Sim. Você tem 7 dias para solicitar reembolso integral caso não fique satisfeito, conforme o Código de Defesa do Consumidor.',
+  },
+];
+---
+
+<section id="faq" class="py-20 px-4">
+  <div class="max-w-2xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-display font-bold text-center mb-12">
+      Dúvidas frequentes
+    </h2>
+
+    <div class="space-y-4">
+      {faqs.map((faq) => (
+        <details class="card group cursor-pointer">
+          <summary class="font-medium text-sm flex justify-between items-center list-none">
+            {faq.q}
+            <span class="text-zinc-500 group-open:rotate-45 transition-transform">+</span>
+          </summary>
+          <p class="text-zinc-400 text-sm mt-3 leading-relaxed">{faq.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

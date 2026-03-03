@@ -1,0 +1,33 @@
+---
+import DashboardLayout from '../../components/layout/DashboardLayout.astro';
+
+const { session } = Astro.locals;
+const calcomLink = import.meta.env.PUBLIC_CALCOM_LINK ?? 'https://cal.com/ygorluan/mentoria';
+---
+
+<DashboardLayout title="Mentoria 1:1" session={session!}>
+  <h1 class="text-2xl font-display font-bold mb-2">Mentoria 1:1</h1>
+  <p class="text-zinc-400 mb-8">
+    Agende sua sessão personalizada com Ygor Luan.
+  </p>
+
+  <div class="card max-w-lg">
+    <div class="text-center py-4">
+      <div class="text-4xl mb-4">📅</div>
+      <p class="text-zinc-300 mb-6 leading-relaxed">
+        Sessão de 60 minutos diretamente no calendário de Ygor Luan. Escolha o melhor horário para você.
+      </p>
+      <a
+        href={calcomLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-primary"
+      >
+        Agendar Mentoria
+      </a>
+      <p class="text-xs text-zinc-600 mt-4">
+        Você será redirecionado para Cal.com
+      </p>
+    </div>
+  </div>
+</DashboardLayout>

@@ -1,0 +1,44 @@
+---
+import DashboardLayout from '../../../components/layout/DashboardLayout.astro';
+import VideoPlayer from '../../../islands/VideoPlayer';
+import { LessonsService } from '../../../services/lessons.service';
+import { ProgressService } from '../../../services/progress.service';
+
+const { session } = Astro.locals;
+const { id } = Astro.params;
+
+if (!id) return Astro.redirect('/dashboard/aulas');
+
+let lesson;
+try {
+  lesson = await LessonsService.getById(id);
+} catch {
+  return Astro.redirect('/dashboard/aulas');
+}
+
+const progress = await ProgressService.getLessonProgress(session!.user.id, id);
+---
+
+<DashboardLayout title={lesson.title} session={session!}>
+  <div class="mb-4">
+    <a href="/dashboard/aulas" class="text-sm text-zinc-400 hover:text-white transition-colors">
+      ← Voltar para aulas
+    </a>
+  </div>
+
+  <h1 class="text-2xl font-display font-bold mb-6">{lesson.title}</h1>
+
+  <VideoPlayer
+    lessonId={lesson.id}
+    videoUrl={lesson.video_url}
+    initialWatchTime={progress?.watch_time ?? 0}
+    client:load
+  />
+
+  {lesson.description && (
+    <div class="card mt-6">
+      <h2 class="font-semibold mb-2">Sobre esta aula</h2>
+      <p class="text-zinc-400 text-sm leading-relaxed">{lesson.description}</p>
+    </div>
+  )}
+</DashboardLayout>

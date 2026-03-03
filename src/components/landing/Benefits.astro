@@ -1,0 +1,45 @@
+---
+const benefits = [
+  {
+    icon: '🎬',
+    title: 'Aulas em vídeo HD',
+    desc: 'Mais de 40 aulas gravadas cobrindo técnicas de corte, barba, química e atendimento ao cliente.',
+  },
+  {
+    icon: '🎯',
+    title: 'Mentoria 1:1',
+    desc: 'Sessão personalizada com Ygor Luan para acelerar sua evolução e tirar dúvidas específicas do seu negócio.',
+  },
+  {
+    icon: '📚',
+    title: 'Materiais complementares',
+    desc: 'PDFs, checklists e guias para você aplicar no dia a dia da sua barbearia.',
+  },
+  {
+    icon: '♾️',
+    title: 'Acesso vitalício',
+    desc: 'Pague uma vez e tenha acesso para sempre, incluindo todas as atualizações futuras.',
+  },
+];
+---
+
+<section id="beneficios" class="py-20 px-4">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-display font-bold text-center mb-4">
+      O que você vai receber
+    </h2>
+    <p class="text-zinc-400 text-center mb-12 max-w-xl mx-auto">
+      Tudo que você precisa para se tornar um barbeiro de referência na sua cidade.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {benefits.map((b) => (
+        <div class="card">
+          <div class="text-3xl mb-4">{b.icon}</div>
+          <h3 class="font-semibold text-lg mb-2">{b.title}</h3>
+          <p class="text-zinc-400 text-sm leading-relaxed">{b.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

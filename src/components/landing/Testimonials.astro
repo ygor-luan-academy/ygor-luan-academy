@@ -1,0 +1,44 @@
+---
+const testimonials = [
+  {
+    name: 'Carlos M.',
+    city: 'São Paulo, SP',
+    text: 'Depois da mentoria com o Ygor, dobrei minha clientela em 3 meses. O método dele é cirúrgico.',
+  },
+  {
+    name: 'Rafael S.',
+    city: 'Belo Horizonte, MG',
+    text: 'As aulas de técnica de barba mudaram completamente meu trabalho. Vale cada centavo.',
+  },
+  {
+    name: 'Diego F.',
+    city: 'Curitiba, PR',
+    text: 'A sessão 1:1 me ajudou a precificar meus serviços corretamente. Hoje ganho 40% mais.',
+  },
+];
+---
+
+<section class="py-20 px-4 bg-zinc-900/50">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-display font-bold text-center mb-12">
+      O que dizem os alunos
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {testimonials.map((t) => (
+        <div class="card">
+          <div class="flex mb-3">
+            {Array(5).fill(null).map(() => (
+              <span class="text-brand-400 text-sm">★</span>
+            ))}
+          </div>
+          <p class="text-zinc-300 text-sm leading-relaxed mb-4">"{t.text}"</p>
+          <div>
+            <p class="font-medium text-sm">{t.name}</p>
+            <p class="text-zinc-500 text-xs">{t.city}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,37 @@
+---
+import LoginForm from '../islands/LoginForm';
+import '../styles/global.css';
+
+// Redireciona se já logado
+const { session } = Astro.locals;
+if (session) return Astro.redirect('/dashboard');
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Login – Ygor Luan Academy</title>
+  </head>
+  <body class="bg-zinc-950 text-white min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+      <div class="text-center mb-8">
+        <a href="/" class="text-xl font-display font-bold">
+          Ygor Luan <span class="text-brand-400">Academy</span>
+        </a>
+        <p class="text-zinc-400 text-sm mt-2">Acesse sua área de aluno</p>
+      </div>
+
+      <div class="card">
+        <LoginForm client:load />
+      </div>
+
+      <p class="text-center text-sm text-zinc-500 mt-6">
+        Ainda não tem acesso?{' '}
+        <a href="/#comprar" class="text-brand-400 hover:underline">Adquira o curso</a>
+      </p>
+    </div>
+  </body>
+</html>
