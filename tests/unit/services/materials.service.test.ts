@@ -100,6 +100,33 @@ describe('MaterialsService', () => {
     });
   });
 
+  describe('getSignedUrl', () => {
+    it('retorna URL assinada para download', async () => {
+      vi.mocked(supabaseAdmin.storage.from).mockReturnValueOnce({
+        createSignedUrl: vi.fn().mockResolvedValue({
+          data: { signedUrl: 'https://signed.url/file.pdf' },
+          error: null,
+        }),
+      } as never);
+
+      const url = await MaterialsService.getSignedUrl('lesson-1/abc-file.pdf');
+      expect(url).toBe('https://signed.url/file.pdf');
+    });
+
+    it('lança erro quando storage falha', async () => {
+      vi.mocked(supabaseAdmin.storage.from).mockReturnValueOnce({
+        createSignedUrl: vi.fn().mockResolvedValue({
+          data: null,
+          error: { message: 'Object not found' },
+        }),
+      } as never);
+
+      await expect(
+        MaterialsService.getSignedUrl('lesson-1/missing.pdf'),
+      ).rejects.toThrow('Object not found');
+    });
+  });
+
   describe('getByLessonId', () => {
     it('retorna materiais de uma aula', async () => {
       vi.mocked(supabaseAdmin.from).mockReturnValueOnce({

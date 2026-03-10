@@ -43,4 +43,13 @@ export class MaterialsService {
 
     if (error) throw new Error(error.message);
   }
+
+  static async getSignedUrl(storagePath: string, expiresInSeconds = 3600): Promise<string> {
+    const { data, error } = await supabaseAdmin.storage
+      .from('materials')
+      .createSignedUrl(storagePath, expiresInSeconds);
+
+    if (error) throw new Error(error.message);
+    return data.signedUrl;
+  }
 }
