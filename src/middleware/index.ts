@@ -36,10 +36,11 @@ export const onRequest = defineMiddleware(async (
 
   if (!user) return redirect('/login');
 
+  const isAdmin = await UsersService.isAdmin(user.id);
+  locals.isAdmin = isAdmin;
+
   if (ADMIN_PREFIXES.some((p) => pathname.startsWith(p))) {
-    if (!(await UsersService.isAdmin(user.id))) {
-      return redirect('/dashboard');
-    }
+    if (!isAdmin) return redirect('/dashboard');
   }
 
   return next();
