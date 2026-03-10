@@ -7,7 +7,7 @@ interface Props {
   user: User;
   isAdmin?: boolean;
 }
-const { title, user, isAdmin = false } = Astro.props;
+const { title, user, isAdmin = Astro.locals.isAdmin ?? false } = Astro.props;
 const pathname = Astro.url.pathname;
 
 const navItems = [
