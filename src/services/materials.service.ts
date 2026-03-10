@@ -23,4 +23,24 @@ export class MaterialsService {
     if (error) throw new Error(error.message);
     return data;
   }
+
+  static async getById(id: string): Promise<Material> {
+    const { data, error } = await supabaseAdmin
+      .from('materials')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+  }
+
+  static async delete(id: string): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from('materials')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw new Error(error.message);
+  }
 }

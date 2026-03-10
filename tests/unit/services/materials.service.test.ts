@@ -51,6 +51,55 @@ describe('MaterialsService', () => {
     });
   });
 
+  describe('getById', () => {
+    it('retorna material pelo ID', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: mockMaterial, error: null }),
+          }),
+        }),
+      } as never);
+
+      const result = await MaterialsService.getById('mat-1');
+      expect(result.id).toBe('mat-1');
+    });
+
+    it('lança erro quando material não existe', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: null, error: { message: 'Not found' } }),
+          }),
+        }),
+      } as never);
+
+      await expect(MaterialsService.getById('invalid-id')).rejects.toThrow('Not found');
+    });
+  });
+
+  describe('delete', () => {
+    it('deleta material sem lançar erro', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        delete: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ error: null }),
+        }),
+      } as never);
+
+      await expect(MaterialsService.delete('mat-1')).resolves.toBeUndefined();
+    });
+
+    it('lança erro quando delete falha', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        delete: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ error: { message: 'not found' } }),
+        }),
+      } as never);
+
+      await expect(MaterialsService.delete('invalid-id')).rejects.toThrow('not found');
+    });
+  });
+
   describe('getByLessonId', () => {
     it('retorna materiais de uma aula', async () => {
       vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
