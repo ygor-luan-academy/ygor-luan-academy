@@ -1,7 +1,9 @@
 ---
 import DashboardLayout from '../../../../components/layout/DashboardLayout.astro';
 import AdminLessonForm from '../../../../islands/AdminLessonForm';
+import AdminMaterialsManager from '../../../../islands/AdminMaterialsManager';
 import { LessonsService } from '../../../../services/lessons.service';
+import { MaterialsService } from '../../../../services/materials.service';
 
 const { user } = Astro.locals;
 const { id } = Astro.params;
@@ -13,6 +15,13 @@ try {
   lesson = await LessonsService.getById(id);
 } catch {
   return Astro.redirect('/admin/aulas');
+}
+
+let materials: Awaited<ReturnType<typeof MaterialsService.getByLessonId>> = [];
+try {
+  materials = await MaterialsService.getByLessonId(id);
+} catch (err) {
+  console.error('[editar] falha ao carregar materiais:', err);
 }
 ---
 
@@ -26,6 +35,12 @@ try {
     <h1 class="font-display font-light text-3xl mb-8" style="color: var(--cream);">Editar: {lesson.title}</h1>
     <div style="background-color: var(--mahogany); border: 1px solid var(--ink); padding: 2rem;">
       <AdminLessonForm mode="edit" lesson={lesson} client:load />
+    </div>
+    <div class="mt-8" style="background-color: var(--mahogany); border: 1px solid var(--ink); padding: 2rem;">
+      <h2 class="font-sans font-medium text-xs tracking-[0.15em] uppercase mb-6" style="color: var(--fade);">
+        Materiais complementares
+      </h2>
+      <AdminMaterialsManager lessonId={id} initialMaterials={materials} client:load />
     </div>
   </div>
 </DashboardLayout>

@@ -3,19 +3,19 @@ import DashboardLayout from '../../../components/layout/DashboardLayout.astro';
 import VideoPlayer from '../../../islands/VideoPlayer';
 import { LessonsService } from '../../../services/lessons.service';
 import { ProgressService } from '../../../services/progress.service';
-import { OrdersService } from '../../../services/orders.service';
+import { MaterialsService } from '../../../services/materials.service';
 
-const { user } = Astro.locals;
+const { user, hasAccess } = Astro.locals;
 const { id } = Astro.params;
 
 if (!id) return Astro.redirect('/dashboard/aulas');
 
-const hasAccess = await OrdersService.hasActiveAccess(user!.id);
 if (!hasAccess) return Astro.redirect('/sem-acesso');
 
-const [lesson, progress] = await Promise.all([
+const [lesson, progress, materials] = await Promise.all([
   LessonsService.getById(id).catch(() => null),
   ProgressService.getLessonProgress(user!.id, id),
+  MaterialsService.getByLessonId(id).catch(() => []),
 ]);
 
 if (!lesson) return Astro.redirect('/dashboard/aulas');
@@ -42,6 +42,35 @@ if (!lesson) return Astro.redirect('/dashboard/aulas');
     <div class="mt-6" style="background-color: var(--mahogany); border: 1px solid var(--ink); padding: 1.5rem;">
       <h2 class="font-sans font-medium text-xs tracking-[0.15em] uppercase mb-3" style="color: var(--fade);">Sobre esta aula</h2>
       <p class="font-sans text-sm leading-relaxed" style="color: var(--parchment);">{lesson.description}</p>
+    </div>
+  )}
+
+  {materials.length > 0 && (
+    <div class="mt-6" style="background-color: var(--mahogany); border: 1px solid var(--ink); padding: 1.5rem;">
+      <h2 class="font-sans font-medium text-xs tracking-[0.15em] uppercase mb-4" style="color: var(--fade);">
+        Materiais desta aula
+      </h2>
+      <ul class="space-y-2">
+        {materials.map((m) => (
+          <li>
+            <a
+              href={m.file_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center gap-3 font-sans text-sm transition-colors"
+              style="color: var(--parchment);"
+            >
+              <span
+                class="font-sans text-xs uppercase tracking-wide px-2 py-0.5"
+                style="background-color: var(--espresso); color: var(--copper); border: 1px solid var(--blade);"
+              >
+                {m.file_type ?? 'ARQ'}
+              </span>
+              {m.title}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   )}
 </DashboardLayout>
