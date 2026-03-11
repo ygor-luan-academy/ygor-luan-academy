@@ -1,0 +1,130 @@
+---
+import DashboardLayout from '../../components/layout/DashboardLayout.astro';
+import { LessonsService } from '../../services/lessons.service';
+import { ProgressService } from '../../services/progress.service';
+import { AuthService } from '../../services/auth.service';
+import { formatDate } from '../../lib/utils';
+
+const { user, hasAccess } = Astro.locals;
+
+if (!hasAccess) return Astro.redirect('/sem-acesso');
+
+let lessons: Awaited<ReturnType<typeof LessonsService.getAll>> = [];
+let progressList: Awaited<ReturnType<typeof ProgressService.getUserProgress>> = [];
+let profile: Awaited<ReturnType<typeof AuthService.getProfile>> = null;
+let loadError = false;
+
+try {
+  [lessons, progressList, profile] = await Promise.all([
+    LessonsService.getAll(),
+    ProgressService.getUserProgress(user!.id),
+    AuthService.getProfile(user!.id),
+  ]);
+} catch (err) {
+  console.error('Certificado: erro ao carregar dados', err);
+  loadError = true;
+}
+
+const publishedIds = new Set(lessons.map((l) => l.id));
+const completedIds = new Set(
+  progressList.filter((p) => p.completed && publishedIds.has(p.lesson_id)).map((p) => p.lesson_id)
+);
+const isComplete = lessons.length > 0 && lessons.every((l) => completedIds.has(l.id));
+
+const completionDate = isComplete
+  ? progressList
+      .filter((p) => p.completed && p.completed_at !== null)
+      .reduce<string | null>(
+        (latest, p) => (!latest || p.completed_at! > latest ? p.completed_at : latest),
+        null,
+      )
+  : null;
+
+const completedCount = completedIds.size;
+const totalLessons = lessons.length;
+const percentComplete = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+const studentName = profile?.full_name ?? user!.email?.split('@')[0] ?? 'Aluno';
+---
+
+<style>
+  @media print {
+    aside, nav, .print-hide, .page-divider { display: none !important; }
+    main { margin: 0 !important; padding: 0 !important; }
+    html, body { background: #fff !important; }
+    #certificado-documento {
+      border: 2px solid #000 !important;
+      background: #fff !important;
+      color: #000 !important;
+      padding: 3rem !important;
+      max-width: 100% !important;
+    }
+    #certificado-documento * { color: #000 !important; border-color: #000 !important; }
+  }
+</style>
+
+<DashboardLayout title="Certificado" user={user!}>
+  <p class="section-eyebrow">Seu certificado</p>
+  <h1 class="font-display font-light text-4xl mt-1" style="color: var(--cream);">Certificado</h1>
+  <div class="page-divider"></div>
+
+  {loadError && (
+    <p class="font-sans text-sm mb-6" style="color: #f87171;">Erro ao carregar dados. Tente recarregar a página.</p>
+  )}
+
+  {!loadError && !isComplete && (
+    <div class="card" style="border-color: var(--blade);">
+      <p class="section-eyebrow mb-3">Ainda não disponível</p>
+      <p class="font-sans text-sm mb-6" style="color: var(--fade);">
+        Conclua todas as aulas para liberar seu certificado.
+        Você completou {completedCount} de {totalLessons} aulas ({percentComplete}%).
+      </p>
+      <div class="h-px mb-6" style="background-color: var(--tobacco);">
+        <div class="h-full" style={`width: ${percentComplete}%; background-color: var(--copper);`} />
+      </div>
+      <a href="/dashboard/aulas" class="font-sans text-sm" style="color: var(--copper);">
+        Continuar aulas →
+      </a>
+    </div>
+  )}
+
+  {!loadError && isComplete && (
+    <>
+      <div class="mb-6 print-hide">
+        <button
+          class="font-sans text-sm link-btn"
+          onclick="window.print()"
+        >
+          Imprimir / Salvar PDF →
+        </button>
+      </div>
+
+      <div id="certificado-documento" style="border: 1px solid var(--blade); padding: 3rem; max-width: 720px;">
+        <div style="border: 1px solid var(--copper); padding: 2.5rem;">
+          <p class="section-eyebrow mb-6">Ygor Luan Pro · Mentoria Completa de Barbearia</p>
+          <div style="border-top: 1px solid var(--blade); margin-bottom: 2rem;" />
+
+          <p class="font-sans text-xs uppercase tracking-widest mb-3" style="color: var(--fade);">Certificamos que</p>
+          <h2 class="font-display font-light text-5xl mb-6" style="color: var(--cream);">{studentName}</h2>
+
+          <div style="border-top: 1px solid var(--blade); margin-bottom: 2rem;" />
+
+          <p class="font-sans text-sm mb-2" style="color: var(--fade);">
+            concluiu com êxito todos os módulos da
+          </p>
+          <p class="font-display text-xl font-semibold mb-6" style="color: var(--cream);">
+            Mentoria Completa de Barbearia
+          </p>
+
+          <p class="font-sans text-xs mb-8" style="color: var(--fade);">
+            {completionDate ? `Concluído em ${formatDate(completionDate)}` : 'Data de conclusão não registrada'}
+          </p>
+
+          <div style="border-top: 1px solid var(--blade); padding-top: 1.5rem;">
+            <p class="font-display text-lg font-semibold" style="color: var(--cream);">Ygor Luan</p>
+            <p class="font-sans text-xs uppercase tracking-widest" style="color: var(--fade);">Instrutor</p>
+          </div>
+        </div>
+      </div>
+    </>
+  )}
+</DashboardLayout>

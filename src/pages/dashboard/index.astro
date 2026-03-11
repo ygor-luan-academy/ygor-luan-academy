@@ -31,7 +31,8 @@ try {
 }
 
 const progressMap = new Map(progressList.map((p) => [p.lesson_id, p]));
-const completedCount = progressList.filter((p) => p.completed).length;
+const publishedIds = new Set(lessons.map((l) => l.id));
+const completedCount = progressList.filter((p) => p.completed && publishedIds.has(p.lesson_id)).length;
 const nextLesson = lessons.find((l) => !progressMap.get(l.id)?.completed) ?? null;
 
 const moduleTitlesMap = new Map(modulesList.map((m) => [m.order_number, m.title]));
@@ -46,6 +47,7 @@ const modulesSummary = [...modulesGrouped.entries()].map(([num, lsns]) => ({
 }));
 
 const displayName = profile?.full_name?.split(' ')[0] ?? user!.email?.split('@')[0] ?? 'Artesão';
+const isCourseComplete = lessons.length > 0 && completedCount === lessons.length;
 ---
 
 <DashboardLayout title="Meu Progresso" user={user!}>
@@ -71,6 +73,23 @@ const displayName = profile?.full_name?.split(' ')[0] ?? user!.email?.split('@')
       <p class="section-eyebrow mb-1">Continuar de onde parou</p>
       <h3 class="font-display font-semibold text-xl" style="color: var(--cream);">{nextLesson.title}</h3>
       <p class="font-sans text-sm mt-4" style="color: var(--copper);">Assistir agora →</p>
+    </a>
+  )}
+
+  {isCourseComplete && (
+    <a
+      href="/dashboard/certificado"
+      class="card hover:border-copper transition-colors block mb-6"
+      style="border-color: var(--copper-dim);"
+    >
+      <p class="section-eyebrow mb-1">Curso concluído</p>
+      <h3 class="font-display font-semibold text-xl" style="color: var(--cream);">
+        Seu certificado está pronto
+      </h3>
+      <p class="font-sans text-sm mt-2" style="color: var(--fade);">
+        Você completou todos os módulos da Mentoria Completa de Barbearia.
+      </p>
+      <p class="font-sans text-sm mt-4" style="color: var(--copper);">Ver certificado →</p>
     </a>
   )}
 
