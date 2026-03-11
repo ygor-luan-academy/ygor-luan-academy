@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../lib/supabase';
-import type { Lesson } from '../types';
+import type { Lesson, Module } from '../types';
 
 export class LessonsService {
   static async getAll(): Promise<Lesson[]> {
@@ -70,6 +70,16 @@ export class LessonsService {
 
     if (error) throw new Error(error.message);
     return data;
+  }
+
+  static async getAllModules(): Promise<Module[]> {
+    const { data, error } = await supabaseAdmin
+      .from('modules')
+      .select('*')
+      .order('order_number');
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
   }
 
   static async togglePublish(id: string, published: boolean): Promise<void> {

@@ -32,3 +32,12 @@ export function formatDuration(minutes: number): string {
 export function cn(...classes: (string | undefined | null | boolean)[]): string {
   return classes.filter(Boolean).join(' ');
 }
+
+export function groupLessonsByModule<T extends { module_number: number }>(lessons: T[]): Map<number, T[]> {
+  return lessons.reduce<Map<number, T[]>>((acc, lesson) => {
+    const arr = acc.get(lesson.module_number) ?? [];
+    arr.push(lesson);
+    acc.set(lesson.module_number, arr);
+    return acc;
+  }, new Map());
+}

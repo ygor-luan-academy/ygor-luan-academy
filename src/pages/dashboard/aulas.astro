@@ -3,29 +3,23 @@ import DashboardLayout from '../../components/layout/DashboardLayout.astro';
 import { LessonsService } from '../../services/lessons.service';
 import { ProgressService } from '../../services/progress.service';
 import { OrdersService } from '../../services/orders.service';
-import { formatDuration } from '../../lib/utils';
+import { formatDuration, groupLessonsByModule } from '../../lib/utils';
 
 const { user } = Astro.locals;
 
 const hasAccess = await OrdersService.hasActiveAccess(user!.id);
 if (!hasAccess) return Astro.redirect('/sem-acesso');
 
-const [lessons, progressList] = await Promise.all([
+const [lessons, progressList, modulesList] = await Promise.all([
   LessonsService.getAll(),
   ProgressService.getUserProgress(user!.id),
+  LessonsService.getAllModules(),
 ]);
 
 const progressMap = new Map(progressList.map((p) => [p.lesson_id, p]));
+const moduleTitlesMap = new Map(modulesList.map((m) => [m.order_number, m.title]));
 
-const modules = lessons.reduce<Map<number, typeof lessons>>(
-  (acc, lesson) => {
-    const mod = acc.get(lesson.module_number) ?? [];
-    mod.push(lesson);
-    acc.set(lesson.module_number, mod);
-    return acc;
-  },
-  new Map(),
-);
+const modules = groupLessonsByModule(lessons);
 ---
 
 <DashboardLayout title="Aulas" user={user!}>
@@ -41,13 +35,18 @@ const modules = lessons.reduce<Map<number, typeof lessons>>(
       return (
         <div>
           <div class="flex justify-between font-sans text-xs mb-2" style="color: var(--fade);">
-            <span>Módulo {moduleNum}</span>
+            <span class="flex items-center gap-2">
+              {moduleTitlesMap.get(moduleNum) ?? `Módulo ${moduleNum}`}
+              {allDone && (
+                <span style="color: var(--copper); font-size: 0.7rem; font-variant: small-caps; letter-spacing: 0.05em;">✓ concluído</span>
+              )}
+            </span>
             <span>{completedInModule} de {moduleLessons.length} concluídas</span>
           </div>
           <div class="h-px mb-4" style="background-color: var(--tobacco);">
             <div
               class="h-full"
-              style={`width: ${percentage}%; background-color: var(--copper); transition: width 0.3s;`}
+              style={`width: ${percentage}%; background-color: var(--copper);`}
             />
           </div>
           <div class={`lesson-timeline${allDone ? ' lesson-timeline--completed' : ''}`}>

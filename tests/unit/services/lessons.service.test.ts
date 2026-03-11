@@ -204,6 +204,48 @@ describe('LessonsService', () => {
     });
   });
 
+  describe('getAllModules', () => {
+    it('retorna lista de módulos ordenada por order_number', async () => {
+      const mockModules = [
+        { id: '1', title: 'Cortes Básicos', order_number: 1, description: null, created_at: '' },
+        { id: '2', title: 'Barba', order_number: 2, description: null, created_at: '' },
+      ];
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValueOnce({
+          order: vi.fn().mockResolvedValueOnce({ data: mockModules, error: null }),
+        }),
+      } as never);
+
+      const result = await LessonsService.getAllModules();
+
+      expect(result).toHaveLength(2);
+      expect(result[0].title).toBe('Cortes Básicos');
+      expect(result[1].title).toBe('Barba');
+    });
+
+    it('lança erro quando supabase falha', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValueOnce({
+          order: vi.fn().mockResolvedValueOnce({ data: null, error: { message: 'DB error' } }),
+        }),
+      } as never);
+
+      await expect(LessonsService.getAllModules()).rejects.toThrow('DB error');
+    });
+
+    it('retorna array vazio quando não há módulos', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValueOnce({
+          order: vi.fn().mockResolvedValueOnce({ data: [], error: null }),
+        }),
+      } as never);
+
+      const result = await LessonsService.getAllModules();
+
+      expect(result).toEqual([]);
+    });
+  });
+
   describe('togglePublish', () => {
     it('publica a aula sem lançar erro', async () => {
       vi.mocked(supabaseAdmin.from).mockReturnValueOnce({

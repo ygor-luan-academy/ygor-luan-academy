@@ -5,6 +5,7 @@ import { LessonsService } from '../../services/lessons.service';
 import { ProgressService } from '../../services/progress.service';
 import { AuthService } from '../../services/auth.service';
 import { OrdersService } from '../../services/orders.service';
+import { groupLessonsByModule } from '../../lib/utils';
 
 const { user } = Astro.locals;
 
@@ -12,20 +13,37 @@ const hasAccess = await OrdersService.hasActiveAccess(user!.id);
 if (!hasAccess) return Astro.redirect('/sem-acesso');
 
 let lessons: Awaited<ReturnType<typeof LessonsService.getAll>> = [];
-let completedCount = 0;
+let progressList: Awaited<ReturnType<typeof ProgressService.getUserProgress>> = [];
+let modulesList: Awaited<ReturnType<typeof LessonsService.getAllModules>> = [];
 let profile: Awaited<ReturnType<typeof AuthService.getProfile>> = null;
 let dashboardLoadError = false;
 
 try {
-  [lessons, completedCount, profile] = await Promise.all([
+  [lessons, progressList, modulesList, profile] = await Promise.all([
     LessonsService.getAll(),
-    ProgressService.getCompletedCount(user!.id),
+    ProgressService.getUserProgress(user!.id),
+    LessonsService.getAllModules(),
     AuthService.getProfile(user!.id),
   ]);
 } catch (err) {
   console.error('Dashboard index: erro ao carregar dados', err);
   dashboardLoadError = true;
 }
+
+const progressMap = new Map(progressList.map((p) => [p.lesson_id, p]));
+const completedCount = progressList.filter((p) => p.completed).length;
+const nextLesson = lessons.find((l) => !progressMap.get(l.id)?.completed) ?? null;
+
+const moduleTitlesMap = new Map(modulesList.map((m) => [m.order_number, m.title]));
+const modulesGrouped = groupLessonsByModule(lessons);
+
+const modulesSummary = [...modulesGrouped.entries()].map(([num, lsns]) => ({
+  number: num,
+  title: moduleTitlesMap.get(num) ?? `Módulo ${num}`,
+  total: lsns.length,
+  completed: lsns.filter((l) => progressMap.get(l.id)?.completed).length,
+  allDone: lsns.every((l) => progressMap.get(l.id)?.completed),
+}));
 
 const displayName = profile?.full_name?.split(' ')[0] ?? user!.email?.split('@')[0] ?? 'Artesão';
 ---
@@ -48,17 +66,29 @@ const displayName = profile?.full_name?.split(' ')[0] ?? user!.email?.split('@')
     />
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <a
-      href="/dashboard/aulas"
-      class="card hover:border-copper transition-colors block"
-    >
-      <p class="section-eyebrow mb-2">Aulas</p>
-      <h3 class="font-display font-semibold text-xl mb-1" style="color: var(--cream);">Continuar assistindo</h3>
-      <p class="font-sans text-sm" style="color: var(--fade);">{completedCount} de {lessons.length} aulas concluídas</p>
-      <p class="font-sans text-sm mt-4" style="color: var(--copper);">Continuar →</p>
+  {nextLesson && (
+    <a href={`/dashboard/aula/${nextLesson.id}`} class="card hover:border-copper transition-colors block mb-6">
+      <p class="section-eyebrow mb-1">Continuar de onde parou</p>
+      <h3 class="font-display font-semibold text-xl" style="color: var(--cream);">{nextLesson.title}</h3>
+      <p class="font-sans text-sm mt-4" style="color: var(--copper);">Assistir agora →</p>
     </a>
+  )}
 
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {modulesSummary.map((mod) => (
+      <a href="/dashboard/aulas" class="card hover:border-copper transition-colors block">
+        <div class="flex justify-between items-start mb-2">
+          <p class="section-eyebrow">{mod.title}</p>
+          {mod.allDone && <span style="color: var(--copper); font-size: 0.7rem; font-variant: small-caps;">✓ concluído</span>}
+        </div>
+        <p class="font-sans text-sm mb-3" style="color: var(--fade);">
+          {mod.completed} de {mod.total} aulas
+        </p>
+        <div class="h-px" style="background-color: var(--tobacco);">
+          <div class="h-full" style={`width: ${mod.total > 0 ? Math.round(mod.completed / mod.total * 100) : 0}%; background-color: var(--copper);`} />
+        </div>
+      </a>
+    ))}
     <a
       href="/dashboard/mentoria"
       class="card hover:border-copper transition-colors block"
