@@ -59,7 +59,11 @@ export default function VideoPlayer({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ lessonId, watchTime: Math.floor(seconds) }),
           });
-          if (!res.ok) setProgressError(true);
+          if (!res.ok) {
+            setProgressError(true);
+          } else {
+            setProgressError(false);
+          }
         } catch {
           console.error('VideoPlayer: falha ao salvar progresso');
         }

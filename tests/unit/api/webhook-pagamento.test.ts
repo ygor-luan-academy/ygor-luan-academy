@@ -113,4 +113,54 @@ describe('POST /api/webhook/pagamento', () => {
     expect(res.status).toBe(200);
     expect(mpPayment.get).not.toHaveBeenCalled();
   });
+
+  describe('falha no generateLink', () => {
+    it('retorna 500 quando generateLink falha', async () => {
+      vi.mocked(supabaseAdmin.from)
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({ data: null, error: null }),
+            }),
+          }),
+        } as never)
+        .mockReturnValueOnce({
+          upsert: vi.fn().mockResolvedValue({ error: null }),
+        } as never)
+        .mockReturnValueOnce({
+          upsert: vi.fn().mockResolvedValue({ error: null }),
+        } as never);
+
+      vi.mocked(supabaseAdmin.auth.admin.createUser).mockResolvedValueOnce({
+        data: { user: { id: 'user-123' } },
+        error: null,
+      } as never);
+
+      vi.mocked(supabaseAdmin.auth.admin.generateLink).mockResolvedValueOnce({
+        data: null,
+        error: { message: 'link generation failed' },
+      } as never);
+
+      vi.mocked(mpPayment.get).mockResolvedValueOnce({
+        status: 'approved',
+        id: 12345,
+        payer: { email: 'user@example.com' },
+        transaction_amount: 997,
+        payment_method_id: 'credit_card',
+      } as never);
+
+      const createHmac = await import('crypto').then((m) => m.createHmac);
+      const template = `id:12345;request-id:req-gen;ts:2000000;`;
+      const v1 = createHmac('sha256', 'test-secret').update(template).digest('hex');
+
+      const req = buildRequest(paymentNotification, {
+        'x-signature': `ts=2000000,v1=${v1}`,
+        'x-request-id': 'req-gen',
+      });
+
+      const res = await POST({ request: req } as never);
+
+      expect(res.status).toBe(500);
+    });
+  });
 });

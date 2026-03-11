@@ -105,12 +105,17 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response('Error creating order', { status: 500 });
   }
 
-  const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+  const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
     type: 'recovery',
     email,
   });
 
-  const recoveryLink = linkData?.properties?.action_link;
+  if (linkError || !linkData?.properties?.action_link) {
+    console.error('Webhook: erro ao gerar link de acesso', linkError);
+    return new Response('Error generating access link', { status: 500 });
+  }
+
+  const recoveryLink = linkData.properties.action_link;
 
   try {
     await resend.emails.send({
