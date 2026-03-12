@@ -61,6 +61,7 @@ const isCourseComplete = lessons.length > 0 && completedCount === lessons.length
     <ProgressTracker
       totalLessons={lessons.length}
       completedLessons={completedCount}
+      modules={modulesSummary}
       client:load
     />
   </div>
