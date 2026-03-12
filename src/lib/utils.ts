@@ -41,3 +41,24 @@ export function groupLessonsByModule<T extends { module_number: number }>(lesson
     return acc;
   }, new Map());
 }
+
+export type AdjacentLessons<T> = {
+  prev: T | null;
+  next: T | null;
+  position: number;
+  total: number;
+};
+
+export function findAdjacentLessons<T extends { id: string }>(
+  lessons: T[],
+  currentId: string,
+): AdjacentLessons<T> {
+  const idx = lessons.findIndex((l) => l.id === currentId);
+  if (idx === -1) return { prev: null, next: null, position: 0, total: lessons.length };
+  return {
+    prev: lessons[idx - 1] ?? null,
+    next: lessons[idx + 1] ?? null,
+    position: idx + 1,
+    total: lessons.length,
+  };
+}

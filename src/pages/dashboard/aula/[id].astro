@@ -4,6 +4,7 @@ import VideoPlayer from '../../../islands/VideoPlayer';
 import { LessonsService } from '../../../services/lessons.service';
 import { ProgressService } from '../../../services/progress.service';
 import { MaterialsService } from '../../../services/materials.service';
+import { findAdjacentLessons } from '../../../lib/utils';
 
 const { user, hasAccess } = Astro.locals;
 const { id } = Astro.params;
@@ -12,20 +13,28 @@ if (!id) return Astro.redirect('/dashboard/aulas');
 
 if (!hasAccess) return Astro.redirect('/sem-acesso');
 
-const [lesson, progress, materials] = await Promise.all([
+const [lesson, progress, materials, allLessons] = await Promise.all([
   LessonsService.getById(id).catch(() => null),
-  ProgressService.getLessonProgress(user!.id, id),
+  ProgressService.getLessonProgress(user!.id, id).catch(() => null),
   MaterialsService.getByLessonId(id).catch(() => []),
+  LessonsService.getAll().catch(() => []),
 ]);
 
 if (!lesson) return Astro.redirect('/dashboard/aulas');
+
+const { prev, next, position, total } = findAdjacentLessons(allLessons, id);
 ---
 
 <DashboardLayout title={lesson.title} user={user!}>
-  <div class="mb-6">
+  <div class="mb-6 flex items-center justify-between">
     <a href="/dashboard/aulas" class="back-link font-sans text-sm">
       ← Voltar para aulas
     </a>
+    {total > 0 && (
+      <span class="font-mono text-xs" style="color: var(--fade);">
+        Aula {position} de {total}
+      </span>
+    )}
   </div>
 
   <h1 class="font-display font-light text-3xl mb-6" style="color: var(--cream);">{lesson.title}</h1>
@@ -73,6 +82,31 @@ if (!lesson) return Astro.redirect('/dashboard/aulas');
       </ul>
     </div>
   )}
+
+  <div class="mt-8 flex items-center justify-between gap-4">
+    {prev ? (
+      <a
+        href={`/dashboard/aula/${prev.id}`}
+        class="card hover:border-copper transition-colors flex-1 max-w-[48%]"
+      >
+        <p class="font-sans text-xs uppercase tracking-[0.1em] mb-1" style="color: var(--fade);">← Anterior</p>
+        <p class="font-sans font-medium text-sm truncate" style="color: var(--cream);">{prev.title}</p>
+      </a>
+    ) : (
+      <div class="flex-1 max-w-[48%]" aria-hidden="true" />
+    )}
+    {next ? (
+      <a
+        href={`/dashboard/aula/${next.id}`}
+        class="card hover:border-copper transition-colors flex-1 max-w-[48%] text-right"
+      >
+        <p class="font-sans text-xs uppercase tracking-[0.1em] mb-1" style="color: var(--fade);">Próxima →</p>
+        <p class="font-sans font-medium text-sm truncate" style="color: var(--cream);">{next.title}</p>
+      </a>
+    ) : (
+      <div class="flex-1 max-w-[48%]" aria-hidden="true" />
+    )}
+  </div>
 </DashboardLayout>
 
 <style>

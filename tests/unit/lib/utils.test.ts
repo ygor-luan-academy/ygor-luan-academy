@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatCurrency, formatDate, slugify, formatDuration, cn } from '../../../src/lib/utils';
+import { formatCurrency, formatDate, slugify, formatDuration, cn, findAdjacentLessons } from '../../../src/lib/utils';
 
 describe('formatCurrency', () => {
   it('formata valor em BRL', () => {
@@ -63,5 +63,43 @@ describe('cn', () => {
 
   it('ignora falsy values', () => {
     expect(cn('foo', false, undefined, null, 'bar')).toBe('foo bar');
+  });
+});
+
+describe('findAdjacentLessons', () => {
+  type Fixture = { id: string; title: string };
+  const lessons: Fixture[] = [
+    { id: 'a', title: 'Aula 1' },
+    { id: 'b', title: 'Aula 2' },
+    { id: 'c', title: 'Aula 3' },
+  ];
+
+  it('retorna defaults quando lista está vazia', () => {
+    expect(findAdjacentLessons([], 'x')).toEqual({ prev: null, next: null, position: 0, total: 0 });
+  });
+
+  it('retorna defaults quando ID não é encontrado', () => {
+    expect(findAdjacentLessons(lessons, 'z')).toEqual({ prev: null, next: null, position: 0, total: 3 });
+  });
+
+  it('primeira aula: prev null, next = segunda', () => {
+    expect(findAdjacentLessons(lessons, 'a')).toEqual({ prev: null, next: lessons[1], position: 1, total: 3 });
+  });
+
+  it('última aula: prev = penúltima, next null', () => {
+    expect(findAdjacentLessons(lessons, 'c')).toEqual({ prev: lessons[1], next: null, position: 3, total: 3 });
+  });
+
+  it('aula do meio: prev e next corretos', () => {
+    expect(findAdjacentLessons(lessons, 'b')).toEqual({ prev: lessons[0], next: lessons[2], position: 2, total: 3 });
+  });
+
+  it('lista com único item: prev e next null, position 1', () => {
+    expect(findAdjacentLessons([{ id: 'x', title: 'X' }], 'x')).toEqual({ prev: null, next: null, position: 1, total: 1 });
+  });
+
+  it('prev mantém identidade de referência', () => {
+    const result = findAdjacentLessons(lessons, 'b');
+    expect(result.prev).toBe(lessons[0]);
   });
 });

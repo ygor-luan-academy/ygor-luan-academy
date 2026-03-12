@@ -7,11 +7,21 @@ import { formatDuration, groupLessonsByModule } from '../../lib/utils';
 const { user, hasAccess } = Astro.locals;
 if (!hasAccess) return Astro.redirect('/sem-acesso');
 
-const [lessons, progressList, modulesList] = await Promise.all([
-  LessonsService.getAll(),
-  ProgressService.getUserProgress(user!.id),
-  LessonsService.getAllModules(),
-]);
+let lessons: Awaited<ReturnType<typeof LessonsService.getAll>> = [];
+let progressList: Awaited<ReturnType<typeof ProgressService.getUserProgress>> = [];
+let modulesList: Awaited<ReturnType<typeof LessonsService.getAllModules>> = [];
+let aulasLoadError = false;
+
+try {
+  [lessons, progressList, modulesList] = await Promise.all([
+    LessonsService.getAll(),
+    ProgressService.getUserProgress(user!.id),
+    LessonsService.getAllModules(),
+  ]);
+} catch (err) {
+  console.error('Dashboard aulas: erro ao carregar dados', err);
+  aulasLoadError = true;
+}
 
 const progressMap = new Map(progressList.map((p) => [p.lesson_id, p]));
 const moduleTitlesMap = new Map(modulesList.map((m) => [m.order_number, m.title]));
@@ -24,6 +34,20 @@ const modules = groupLessonsByModule(lessons);
   <h1 class="font-display font-light text-4xl mt-1" style="color: var(--cream);">Aulas</h1>
   <div class="page-divider"></div>
 
+  {aulasLoadError && (
+    <p class="font-sans text-sm mb-6" style="color: #f87171;">
+      Erro ao carregar aulas. Tente recarregar a página.
+    </p>
+  )}
+
+  {!aulasLoadError && lessons.length === 0 && (
+    <div class="card" style="border-color: var(--blade); text-align: center; padding: 3rem 1.5rem;">
+      <p class="font-sans font-medium text-sm mb-1" style="color: var(--fade);">Nenhuma aula disponível</p>
+      <p class="font-sans text-xs" style="color: var(--blade);">O conteúdo será publicado em breve.</p>
+    </div>
+  )}
+
+  {!aulasLoadError && (
   <div class="space-y-12">
     {[...modules.entries()].map(([moduleNum, moduleLessons]) => {
       const allDone = moduleLessons.every((l) => progressMap.get(l.id)?.completed);
@@ -81,4 +105,5 @@ const modules = groupLessonsByModule(lessons);
       );
     })}
   </div>
+  )}
 </DashboardLayout>
