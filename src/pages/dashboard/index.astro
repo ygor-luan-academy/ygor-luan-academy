@@ -96,7 +96,7 @@ const isCourseComplete = lessons.length > 0 && completedCount === lessons.length
       <a href="/dashboard/aulas" class="card hover:border-copper transition-colors block">
         <div class="flex justify-between items-start mb-2">
           <p class="section-eyebrow">{mod.title}</p>
-          {mod.allDone && <span style="color: var(--copper); font-size: 0.7rem; font-variant: small-caps;">✓ concluído</span>}
+          {mod.allDone && mod.total > 0 && <span style="color: var(--copper); font-size: 0.7rem; font-variant: small-caps;">✓ concluído</span>}
         </div>
         <p class="font-sans text-sm mb-3" style="color: var(--fade);">
           {mod.completed} de {mod.total} aulas
