@@ -26,6 +26,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
       title: body.title,
       file_url: body.file_url,
       file_type: body.file_type ?? null,
+      file_size: null,
     });
 
     return new Response(JSON.stringify(material), {
