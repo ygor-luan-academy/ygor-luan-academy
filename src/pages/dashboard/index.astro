@@ -40,7 +40,7 @@ const modulesSummary = [...modulesGrouped.entries()].map(([num, lsns]) => ({
   title: moduleTitlesMap.get(num) ?? `Módulo ${num}`,
   total: lsns.length,
   completed: lsns.filter((l) => progressMap.get(l.id)?.completed).length,
-  allDone: lsns.every((l) => progressMap.get(l.id)?.completed),
+  allDone: lsns.length > 0 && lsns.every((l) => progressMap.get(l.id)?.completed),
 }));
 
 const displayName = profile?.full_name?.split(' ')[0] ?? user!.email?.split('@')[0] ?? 'Artesão';

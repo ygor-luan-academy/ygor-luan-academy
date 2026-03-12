@@ -29,7 +29,15 @@ export default function ProgressTracker({
         <span className="font-medium" style={{ color: 'var(--cream)' }}>{percentage}%</span>
       </div>
 
-      <div className="h-1" style={{ backgroundColor: 'var(--tobacco)' }}>
+      <div
+        role="progressbar"
+        aria-valuenow={percentage}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Progresso geral do curso"
+        className="h-1"
+        style={{ backgroundColor: 'var(--tobacco)' }}
+      >
         <div
           className="h-full transition-all duration-700"
           style={{ width: `${percentage}%`, backgroundColor: 'var(--copper)' }}
@@ -51,7 +59,7 @@ export default function ProgressTracker({
                 <div className="flex justify-between items-center font-sans text-xs mb-1.5">
                   <div className="flex items-center gap-2">
                     <span style={{ color: 'var(--parchment)' }}>{mod.title}</span>
-                    {mod.allDone && (
+                    {mod.allDone && mod.total > 0 && (
                       <span style={{ color: 'var(--copper)', fontSize: '0.65rem', fontVariant: 'small-caps', letterSpacing: '0.05em' }}>
                         concluído
                       </span>
@@ -64,7 +72,15 @@ export default function ProgressTracker({
                     </span>
                   </div>
                 </div>
-                <div className="h-1" style={{ backgroundColor: 'var(--tobacco)' }}>
+                <div
+                  role="progressbar"
+                  aria-valuenow={modPercentage}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`Progresso do módulo ${mod.title}`}
+                  className="h-1"
+                  style={{ backgroundColor: 'var(--tobacco)' }}
+                >
                   <div
                     className="h-full transition-all duration-700"
                     style={{
