@@ -1,0 +1,44 @@
+---
+import DashboardLayout from '../../../components/layout/DashboardLayout.astro';
+import { LessonsService } from '../../../services/lessons.service';
+import { QuizService } from '../../../services/quiz.service';
+
+const { user } = Astro.locals;
+const modules = await LessonsService.getAllModules();
+
+const quizCounts = await Promise.all(
+  modules.map(async (m) => {
+    const questions = await QuizService.getQuestionsByModule(m.order_number).catch(() => []);
+    return { moduleNumber: m.order_number, count: questions.length };
+  }),
+);
+const countMap = new Map(quizCounts.map(({ moduleNumber, count }) => [moduleNumber, count]));
+---
+
+<DashboardLayout title="Quizzes" user={user!} isAdmin={true}>
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="font-display font-light text-3xl" style="color: var(--cream);">Quizzes por Módulo</h1>
+  </div>
+  <div>
+    {modules.map((m) => {
+      const count = countMap.get(m.order_number) ?? 0;
+      return (
+        <div class="flex items-center gap-5 py-4" style="border-top: 1px solid var(--ink);">
+          <div class="flex-1 min-w-0">
+            <p class="font-sans font-medium text-sm" style="color: var(--cream);">{m.title}</p>
+            <p class="font-sans text-xs mt-0.5" style="color: var(--fade);">
+              Módulo {m.order_number} · {count} {count === 1 ? 'questão' : 'questões'}
+            </p>
+          </div>
+          <a href={`/admin/quiz/${m.order_number}`} class="font-sans text-sm flex-shrink-0 hover:underline" style="color: var(--copper);">Gerenciar</a>
+        </div>
+      );
+    })}
+    <div style="border-top: 1px solid var(--ink);"></div>
+    {modules.length === 0 && (
+      <div class="py-16 text-center">
+        <p class="font-sans text-sm" style="color: var(--fade);">Nenhum módulo cadastrado.</p>
+      </div>
+    )}
+  </div>
+</DashboardLayout>

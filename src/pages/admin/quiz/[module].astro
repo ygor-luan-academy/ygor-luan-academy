@@ -1,0 +1,51 @@
+---
+import DashboardLayout from '../../../components/layout/DashboardLayout.astro';
+import AdminQuizForm from '../../../islands/AdminQuizForm';
+import { QuizService } from '../../../services/quiz.service';
+import { LessonsService } from '../../../services/lessons.service';
+
+const { user } = Astro.locals;
+const moduleNumber = Number(Astro.params.module);
+if (isNaN(moduleNumber) || moduleNumber < 1) return Astro.redirect('/admin/quiz');
+
+const [questions, modules] = await Promise.all([
+  QuizService.getQuestionsByModule(moduleNumber).catch(() => []),
+  LessonsService.getAllModules().catch(() => []),
+]);
+
+const moduleTitle = modules.find((m) => m.order_number === moduleNumber)?.title ?? `Módulo ${moduleNumber}`;
+const editingId = Astro.url.searchParams.get('edit');
+const editingQuestion = editingId ? questions.find((q) => q.id === editingId) : undefined;
+---
+
+<DashboardLayout title={`Quiz — ${moduleTitle}`} user={user!} isAdmin={true}>
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <a href="/admin/quiz" class="font-sans text-xs" style="color: var(--fade);">← Quizzes</a>
+      <h1 class="font-display font-light text-3xl mt-1" style="color: var(--cream);">{moduleTitle}</h1>
+    </div>
+  </div>
+  <div class="grid md:grid-cols-2 gap-10">
+    <div>
+      <h2 class="font-sans font-medium text-xs tracking-[0.15em] uppercase mb-4" style="color: var(--fade);">
+        {editingQuestion ? 'Editar Questão' : 'Nova Questão'}
+      </h2>
+      <AdminQuizForm moduleNumber={moduleNumber} question={editingQuestion} mode={editingQuestion ? 'edit' : 'create'} client:load />
+    </div>
+    <div>
+      <h2 class="font-sans font-medium text-xs tracking-[0.15em] uppercase mb-4" style="color: var(--fade);">
+        Questões ({questions.length})
+      </h2>
+      {questions.length === 0 && <p class="font-sans text-sm" style="color: var(--fade);">Nenhuma questão ainda.</p>}
+      {questions.map((q) => (
+        <div class="py-3" style="border-bottom: 1px solid var(--ink);">
+          <p class="font-sans text-sm mb-1" style="color: var(--cream);">{q.question}</p>
+          <p class="font-sans text-xs" style="color: var(--fade);">
+            Correta: opção {q.correct_answer_index + 1} ({(q.options as string[])[q.correct_answer_index]})
+          </p>
+          <a href={`/admin/quiz/${moduleNumber}?edit=${q.id}`} class="font-sans text-xs mt-1 inline-block" style="color: var(--copper);">Editar</a>
+        </div>
+      ))}
+    </div>
+  </div>
+</DashboardLayout>
