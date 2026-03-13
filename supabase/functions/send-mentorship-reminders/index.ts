@@ -154,7 +154,10 @@ serve(async () => {
       .eq('id', session.user_id)
       .single<ProfileRow>();
 
-    if (profileError || !profile) continue;
+    if (profileError || !profile) {
+      console.error(`Falha ao buscar perfil para sessão ${session.id}:`, profileError);
+      continue;
+    }
 
     try {
       await sendReminderEmail(
@@ -164,10 +167,12 @@ serve(async () => {
         session.meeting_url ?? 'https://ygorluanpro.com.br/dashboard/mentoria',
       );
 
-      await supabase
+      const { error: updateError } = await supabase
         .from('mentorship_sessions')
         .update({ reminder_sent: true })
         .eq('id', session.id);
+
+      if (updateError) throw new Error(`DB update failed: ${updateError.message}`);
 
       sent++;
     } catch (err) {
