@@ -10,10 +10,12 @@ type ActiveStudent = { email: string; full_name: string | null };
 
 export class EmailService {
   static async getActiveStudents(): Promise<ActiveStudent[]> {
-    const { data } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from('orders')
       .select('profiles!inner(email, full_name)')
       .eq('status', 'approved');
+
+    if (error) throw new Error(error.message);
 
     return (data ?? []).map(
       (row: { profiles: { email: string; full_name: string | null } }) => row.profiles,

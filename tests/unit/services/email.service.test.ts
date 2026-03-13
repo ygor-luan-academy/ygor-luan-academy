@@ -58,6 +58,16 @@ describe('EmailService', () => {
 
       expect(students).toEqual([]);
     });
+
+    it('lança erro quando Supabase retorna erro', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: null, error: { message: 'DB error' } }),
+        }),
+      } as never);
+
+      await expect(EmailService.getActiveStudents()).rejects.toThrow('DB error');
+    });
   });
 
   describe('sendWelcome', () => {
