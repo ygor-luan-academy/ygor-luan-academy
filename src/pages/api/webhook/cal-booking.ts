@@ -1,10 +1,24 @@
 import type { APIRoute } from 'astro';
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { supabaseAdmin } from '../../../lib/supabase';
+
+interface CalBookingPayload {
+  startTime: string;
+  attendees: Array<{ email: string; name?: string | null }>;
+  videoCallData?: { url?: string };
+  meetingUrl?: string;
+}
+
+function isCalBookingPayload(v: unknown): v is CalBookingPayload {
+  if (typeof v !== 'object' || v === null) return false;
+  const b = v as Record<string, unknown>;
+  return typeof b['startTime'] === 'string' && Array.isArray(b['attendees']);
+}
 
 function verifyCalSignature(body: string, signature: string, secret: string): boolean {
   const computed = createHmac('sha256', secret).update(body).digest('hex');
-  return computed === signature;
+  if (computed.length !== signature.length) return false;
+  return timingSafeEqual(Buffer.from(computed), Buffer.from(signature));
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -22,9 +36,12 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response('OK', { status: 200 });
   }
 
-  const booking = payload.payload as Record<string, unknown>;
-  const attendees = booking.attendees as Array<{ email: string; name?: string }> | undefined;
-  const attendeeEmail = attendees?.[0]?.email;
+  if (!isCalBookingPayload(payload.payload)) {
+    return new Response('Missing attendee email', { status: 400 });
+  }
+
+  const booking = payload.payload;
+  const attendeeEmail = booking.attendees[0]?.email;
 
   if (!attendeeEmail) {
     return new Response('Missing attendee email', { status: 400 });
@@ -40,16 +57,11 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response('OK', { status: 200 });
   }
 
-  const scheduledAt = booking.startTime as string;
-  const videoCallData = booking.videoCallData as Record<string, unknown> | undefined;
-  const meetingUrl =
-    (videoCallData?.url as string | undefined) ??
-    (booking.meetingUrl as string | undefined) ??
-    '';
+  const meetingUrl = booking.videoCallData?.url ?? booking.meetingUrl ?? '';
 
   await supabaseAdmin.from('mentorship_sessions').upsert({
     user_id: profile.id,
-    scheduled_at: scheduledAt,
+    scheduled_at: booking.startTime,
     meeting_url: meetingUrl,
     status: 'scheduled',
     reminder_sent: false,

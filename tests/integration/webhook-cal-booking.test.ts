@@ -59,6 +59,22 @@ describe('POST /api/webhook/cal-booking', () => {
       const res = await POST(makeCtx(BOOKING_CREATED_PAYLOAD));
       expect(res.status).toBe(401);
     });
+
+    it('retorna 401 com assinatura de comprimento correto mas conteúdo incorreto', async () => {
+      vi.stubEnv('CAL_WEBHOOK_SECRET', TEST_SECRET);
+      const payload = JSON.stringify({ triggerEvent: 'BOOKING_CREATED', payload: {} });
+      const wrongSignature = 'a'.repeat(64);
+
+      const response = await POST({
+        request: new Request('http://localhost', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Cal-Signature-256': wrongSignature },
+          body: payload,
+        }),
+      } as Parameters<typeof POST>[0]);
+
+      expect(response.status).toBe(401);
+    });
   });
 
   describe('eventos ignorados', () => {
