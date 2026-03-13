@@ -1,2 +1,1 @@
 [functions.send-mentorship-reminders]
-schedule = "0 12 * * *"
