@@ -117,7 +117,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const recoveryLink = linkData.properties.action_link;
 
-  await EmailService.sendWelcome(email, paymentData.payer?.first_name ?? null, recoveryLink);
+  void EmailService.sendWelcome(email, paymentData.payer?.first_name ?? null, recoveryLink);
 
   return new Response('OK', { status: 200 });
 };

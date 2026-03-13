@@ -24,9 +24,10 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     allowed.filter((k) => k in raw).map((k) => [k, raw[k]]),
   ) as Partial<Omit<Lesson, 'id' | 'created_at' | 'updated_at'>>;
 
+  const previous = await LessonsService.getById(id);
   const lesson = await LessonsService.update(id, body);
 
-  if (raw.is_published === true) {
+  if (!previous?.is_published && lesson.is_published) {
     void EmailService.notifyNewLesson(lesson);
   }
 

@@ -8,7 +8,8 @@ vi.mock('../../../src/services/lessons.service', () => ({
   LessonsService: {
     getAllAdmin: vi.fn().mockResolvedValue([]),
     create: vi.fn().mockResolvedValue({ id: 'lesson-1', title: 'Aula 1' }),
-    update: vi.fn().mockResolvedValue({ id: 'lesson-1', title: 'Aula 1' }),
+    getById: vi.fn().mockResolvedValue({ id: 'lesson-1', title: 'Aula 1', is_published: false }),
+    update: vi.fn().mockResolvedValue({ id: 'lesson-1', title: 'Aula 1', is_published: false }),
     togglePublish: vi.fn().mockResolvedValue(undefined),
   },
 }));
@@ -17,6 +18,12 @@ vi.mock('../../../src/services/materials.service', () => ({
   MaterialsService: {
     create: vi.fn().mockResolvedValue({ id: 'mat-1', title: 'PDF' }),
     delete: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+vi.mock('../../../src/services/email.service', () => ({
+  EmailService: {
+    notifyNewLesson: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
