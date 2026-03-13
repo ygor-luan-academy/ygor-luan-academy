@@ -1,4 +1,5 @@
 import type { EmailTemplate } from './types';
+import { escapeHtml, safeUrl } from './escape-html';
 
 interface MentorshipReminderData {
   studentName: string | null;
@@ -27,7 +28,8 @@ function formatTimePtBR(date: Date): string {
 }
 
 export function mentorshipReminderTemplate(data: MentorshipReminderData): EmailTemplate {
-  const displayName = data.studentName || 'Aluno';
+  const displayName = escapeHtml(data.studentName || 'Aluno');
+  const meetingUrl = safeUrl(data.meetingUrl);
   const formattedDate = formatDatePtBR(data.scheduledAt);
   const formattedTime = formatTimePtBR(data.scheduledAt);
 
@@ -223,7 +225,7 @@ export function mentorshipReminderTemplate(data: MentorshipReminderData): EmailT
               Clique no botão abaixo para acessar sua sessão e estar pronto quando a hora chegar.
             </p>
 
-            <a href="${data.meetingUrl}" class="cta-button">Acessar reunião →</a>
+            <a href="${meetingUrl}" class="cta-button">Acessar reunião →</a>
 
             <div class="tips">
               <strong>💡 Dicas para uma ótima sessão:</strong>
@@ -237,7 +239,7 @@ export function mentorshipReminderTemplate(data: MentorshipReminderData): EmailT
             <p style="color: #999999; font-size: 13px; margin-top: 20px;">
               Se o botão acima não funcionar, copie e cole este link no seu navegador:
               <br>
-              <code style="background-color: #0a0a0a; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 10px; word-break: break-all;">${data.meetingUrl}</code>
+              <code style="background-color: #0a0a0a; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 10px; word-break: break-all;">${meetingUrl}</code>
             </p>
           </div>
 

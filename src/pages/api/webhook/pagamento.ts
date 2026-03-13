@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { payment as mpPayment } from '../../../lib/mercadopago';
 import { supabaseAdmin } from '../../../lib/supabase';
 import { EmailService } from '../../../services/email.service';
@@ -18,7 +18,8 @@ function verifyMpSignature(headers: Headers, paymentId: string, secret: string):
   const template = `id:${paymentId};request-id:${xRequestId};ts:${ts};`;
   const computed = createHmac('sha256', secret).update(template).digest('hex');
 
-  return computed === v1;
+  if (computed.length !== v1.length) return false;
+  return timingSafeEqual(Buffer.from(computed), Buffer.from(v1));
 }
 
 export const POST: APIRoute = async ({ request }) => {

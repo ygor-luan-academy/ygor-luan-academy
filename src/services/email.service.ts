@@ -52,13 +52,13 @@ export class EmailService {
       lessonUrl,
     });
 
-    for (const student of students) {
-      try {
-        await resend.emails.send({ from: FROM_EMAIL, to: student.email, subject, html });
-      } catch (error) {
-        console.error('EmailService: falha ao enviar email:', error);
-      }
-    }
+    await Promise.allSettled(
+      students.map((student) =>
+        resend.emails.send({ from: FROM_EMAIL, to: student.email, subject, html }).catch((error) => {
+          console.error('EmailService: falha ao enviar email:', error);
+        }),
+      ),
+    );
   }
 
   static async notifyCertificateAvailable(

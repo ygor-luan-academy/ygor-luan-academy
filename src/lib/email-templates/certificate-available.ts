@@ -1,4 +1,5 @@
 import type { EmailTemplate } from './types';
+import { escapeHtml, safeUrl } from './escape-html';
 
 interface CertificateData {
   studentName: string | null;
@@ -6,7 +7,8 @@ interface CertificateData {
 }
 
 export function certificateAvailableTemplate(data: CertificateData): EmailTemplate {
-  const displayName = data.studentName || 'Aluno';
+  const displayName = escapeHtml(data.studentName || 'Aluno');
+  const certificateUrl = safeUrl(data.certificateUrl);
 
   const html = `
     <!DOCTYPE html>
@@ -166,7 +168,7 @@ export function certificateAvailableTemplate(data: CertificateData): EmailTempla
               Seu certificado digital está pronto para ser acessado, baixado e compartilhado. Use-o para comprovar suas competências no mercado de trabalho.
             </p>
 
-            <a href="${data.certificateUrl}" class="cta-button">Visualizar certificado →</a>
+            <a href="${certificateUrl}" class="cta-button">Visualizar certificado →</a>
 
             <div class="details">
               <strong>O que fazer agora?</strong>
@@ -180,7 +182,7 @@ export function certificateAvailableTemplate(data: CertificateData): EmailTempla
             <p style="color: #999999; font-size: 13px; margin-top: 20px;">
               Se o botão acima não funcionar, copie e cole este link no seu navegador:
               <br>
-              <code style="background-color: #0a0a0a; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 10px; word-break: break-all;">${data.certificateUrl}</code>
+              <code style="background-color: #0a0a0a; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 10px; word-break: break-all;">${certificateUrl}</code>
             </p>
           </div>
 

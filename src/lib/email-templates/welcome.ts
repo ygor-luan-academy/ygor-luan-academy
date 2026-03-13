@@ -1,4 +1,5 @@
 import type { EmailTemplate } from './types';
+import { escapeHtml, safeUrl } from './escape-html';
 
 interface WelcomeData {
   name: string | null;
@@ -6,7 +7,8 @@ interface WelcomeData {
 }
 
 export function welcomeTemplate(data: WelcomeData): EmailTemplate {
-  const displayName = data.name || 'Aluno';
+  const displayName = escapeHtml(data.name || 'Aluno');
+  const loginUrl = safeUrl(data.loginUrl);
 
   const html = `
     <!DOCTYPE html>
@@ -169,13 +171,13 @@ export function welcomeTemplate(data: WelcomeData): EmailTemplate {
             </div>
 
             <div style="text-align: center;">
-              <a href="${data.loginUrl}" class="cta-button">Acessar minha conta</a>
+              <a href="${loginUrl}" class="cta-button">Acessar minha conta</a>
             </div>
 
             <p style="color: #999999; font-size: 13px; margin-top: 20px;">
               Se o botão acima não funcionar, copie e cole este link no seu navegador:
               <br>
-              <code style="background-color: #0a0a0a; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 10px; word-break: break-all;">${data.loginUrl}</code>
+              <code style="background-color: #0a0a0a; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 10px; word-break: break-all;">${loginUrl}</code>
             </p>
           </div>
 

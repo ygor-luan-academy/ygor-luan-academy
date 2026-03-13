@@ -1,4 +1,5 @@
 import type { EmailTemplate } from './types';
+import { escapeHtml, safeUrl } from './escape-html';
 
 interface NewLessonData {
   lessonTitle: string;
@@ -7,6 +8,9 @@ interface NewLessonData {
 }
 
 export function newLessonTemplate(data: NewLessonData): EmailTemplate {
+  const lessonTitle = escapeHtml(data.lessonTitle);
+  const moduleName = escapeHtml(data.moduleName);
+  const lessonUrl = safeUrl(data.lessonUrl);
   const html = `
     <!DOCTYPE html>
     <html>
@@ -132,18 +136,18 @@ export function newLessonTemplate(data: NewLessonData): EmailTemplate {
             </p>
 
             <div class="lesson-card">
-              <div class="lesson-module">${data.moduleName}</div>
-              <h2 class="lesson-title">${data.lessonTitle}</h2>
+              <div class="lesson-module">${moduleName}</div>
+              <h2 class="lesson-title">${lessonTitle}</h2>
               <p class="lesson-description">
                 Assista este conteúdo para aprofundar seus conhecimentos e dominar novas técnicas de barbeiraria profissional.
               </p>
-              <a href="${data.lessonUrl}" class="cta-button">Assistir agora →</a>
+              <a href="${lessonUrl}" class="cta-button">Assistir agora →</a>
             </div>
 
             <p style="color: #999999; font-size: 13px; margin-top: 30px;">
               Se o botão acima não funcionar, copie e cole este link no seu navegador:
               <br>
-              <code style="background-color: #0a0a0a; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 10px; word-break: break-all;">${data.lessonUrl}</code>
+              <code style="background-color: #0a0a0a; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 10px; word-break: break-all;">${lessonUrl}</code>
             </p>
           </div>
 
@@ -160,7 +164,7 @@ export function newLessonTemplate(data: NewLessonData): EmailTemplate {
   `.trim();
 
   return {
-    subject: `Nova aula disponível: ${data.lessonTitle}`,
+    subject: `Nova aula disponível: ${lessonTitle}`,
     html
   };
 }

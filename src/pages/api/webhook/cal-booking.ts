@@ -30,7 +30,12 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const payload = JSON.parse(rawBody) as Record<string, unknown>;
+  let payload: Record<string, unknown>;
+  try {
+    payload = JSON.parse(rawBody) as Record<string, unknown>;
+  } catch {
+    return new Response('Invalid JSON', { status: 400 });
+  }
 
   if (payload.triggerEvent !== 'BOOKING_CREATED') {
     return new Response('OK', { status: 200 });
@@ -59,13 +64,17 @@ export const POST: APIRoute = async ({ request }) => {
 
   const meetingUrl = booking.videoCallData?.url ?? booking.meetingUrl ?? '';
 
-  await supabaseAdmin.from('mentorship_sessions').upsert({
+  const { error: insertError } = await supabaseAdmin.from('mentorship_sessions').insert({
     user_id: profile.id,
     scheduled_at: booking.startTime,
     meeting_url: meetingUrl,
     status: 'scheduled',
     reminder_sent: false,
   });
+
+  if (insertError) {
+    console.error('cal-booking: erro ao inserir mentorship_session', insertError);
+  }
 
   return new Response('OK', { status: 200 });
 };

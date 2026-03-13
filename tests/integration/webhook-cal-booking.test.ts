@@ -36,6 +36,24 @@ beforeEach(() => {
 });
 
 describe('POST /api/webhook/cal-booking', () => {
+  describe('JSON inválido', () => {
+    it('retorna 400 quando body não é JSON válido', async () => {
+      vi.stubEnv('CAL_WEBHOOK_SECRET', TEST_SECRET);
+      const rawBody = 'not-valid-json{{{';
+      const signature = signBody(rawBody, TEST_SECRET);
+
+      const res = await POST({
+        request: new Request('http://localhost/api/webhook/cal-booking', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Cal-Signature-256': signature },
+          body: rawBody,
+        }),
+      } as Parameters<typeof POST>[0]);
+
+      expect(res.status).toBe(400);
+    });
+  });
+
   describe('autenticação', () => {
     it('retorna 401 quando CAL_WEBHOOK_SECRET não está configurado', async () => {
       const body = JSON.stringify(BOOKING_CREATED_PAYLOAD);
@@ -102,9 +120,9 @@ describe('POST /api/webhook/cal-booking', () => {
         }),
       } as never);
 
-      const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
+      const insertMock = vi.fn().mockResolvedValue({ data: null, error: null });
       vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
-        upsert: upsertMock,
+        insert: insertMock,
       } as never);
 
       const body = JSON.stringify(BOOKING_CREATED_PAYLOAD);
@@ -114,7 +132,7 @@ describe('POST /api/webhook/cal-booking', () => {
       expect(res.status).toBe(200);
       expect(supabaseAdmin.from).toHaveBeenCalledWith('profiles');
       expect(supabaseAdmin.from).toHaveBeenCalledWith('mentorship_sessions');
-      expect(upsertMock).toHaveBeenCalledWith(
+      expect(insertMock).toHaveBeenCalledWith(
         expect.objectContaining({
           user_id: 'user-uuid',
           scheduled_at: '2026-04-01T10:00:00Z',
