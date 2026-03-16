@@ -1,5 +1,6 @@
 # build output
 dist/
+.vercel/
 # generated types
 .astro/
 
@@ -31,6 +32,9 @@ test-results/
 
 # jetbrains setting folder
 .idea/
+
+# supabase CLI temp files
+supabase/.temp/
 
 # git worktrees
 .worktrees/
