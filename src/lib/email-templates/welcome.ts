@@ -131,7 +131,7 @@ export function welcomeTemplate(data: WelcomeData): EmailTemplate {
       <body>
         <div class="container">
           <div class="header">
-            <div class="logo">Ygor Luan Pro</div>
+            <div class="logo">Ygor Luan Academy</div>
             <h1 class="title">Bem-vindo! 🎉</h1>
             <p class="subtitle">Sua jornada como barbeiro profissional começou</p>
           </div>
@@ -141,7 +141,7 @@ export function welcomeTemplate(data: WelcomeData): EmailTemplate {
               Olá <strong>${displayName}</strong>,
             </p>
             <p class="greeting">
-              Parabéns por se juntar à Ygor Luan Pro! Você agora tem acesso a um currículo completo de barbeiraria de alta performance, mentorias 1:1 com Ygor, e uma comunidade de barbeiros profissionais.
+              Parabéns por se juntar à Ygor Luan Academy! Você agora tem acesso a um currículo completo de barbeiraria de alta performance, mentorias 1:1 com Ygor, e uma comunidade de barbeiros profissionais.
             </p>
 
             <div class="steps">
@@ -182,7 +182,7 @@ export function welcomeTemplate(data: WelcomeData): EmailTemplate {
           </div>
 
           <div class="footer">
-            <p>© 2026 Ygor Luan Pro. Todos os direitos reservados.</p>
+            <p>© 2026 Ygor Luan Academy. Todos os direitos reservados.</p>
             <p>
               <a href="https://ygorluanpro.com.br/privacidade">Política de Privacidade</a> |
               <a href="https://ygorluanpro.com.br/termos">Termos de Serviço</a>
@@ -194,7 +194,7 @@ export function welcomeTemplate(data: WelcomeData): EmailTemplate {
   `.trim();
 
   return {
-    subject: 'Bem-vindo à Ygor Luan Pro! 🎉',
+    subject: 'Bem-vindo à Ygor Luan Academy! 🎉',
     html
   };
 }

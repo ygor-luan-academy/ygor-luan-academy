@@ -6,12 +6,12 @@ const isLaunchMode = import.meta.env.PUBLIC_IS_LAUNCH_MODE === 'true';
 
 const PRODUCT_CATALOG: Record<ProductId, { title: string; description: string; price: number }> = {
   'videoaulas': {
-    title: 'Videoaulas – Ygor Luan Pro',
+    title: 'Videoaulas – Ygor Luan Academy',
     description: 'Acesso completo às videoaulas',
     price: 297,
   },
   'mentoria-completa': {
-    title: 'Mentoria Completa – Ygor Luan Pro',
+    title: 'Mentoria Completa – Ygor Luan Academy',
     description: 'Videoaulas + 4 sessões de mentoria 1:1',
     price: isLaunchMode ? 997 : 1497,
   },

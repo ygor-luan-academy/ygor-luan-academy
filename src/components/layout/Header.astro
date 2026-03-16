@@ -13,8 +13,15 @@ const { transparent = false } = Astro.props;
   style={transparent ? '' : 'background-color: rgba(24,19,14,0.92); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(201,133,58,0.20);'}
 >
   <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="/" class="font-display text-xl font-semibold tracking-wide" style="color: var(--cream);">
-      Ygor Luan <span style="color: var(--copper);">Pro</span>
+    <a href="/" aria-label="Ygor Luan Academy">
+      <svg viewBox="0 0 240 56" height="36" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <rect width="56" height="56" rx="8" fill="#CA843C"/>
+        <polygon points="8,6 17,6 26,44 17,44" fill="#18130F"/>
+        <polygon points="39,6 48,6 39,27 30,27" fill="#18130F"/>
+        <polygon points="39,27 48,27 48,44 30,44 30,35 39,35" fill="#18130F"/>
+        <text x="68" y="27" font-family="'DM Sans', system-ui, sans-serif" font-weight="700" font-size="17" fill="#CA843C">Ygor Luan</text>
+        <text x="68" y="47" font-family="'DM Sans', system-ui, sans-serif" font-weight="700" font-size="17" fill="#CA843C">Academy</text>
+      </svg>
     </a>
 
     <nav class="flex items-center gap-6">

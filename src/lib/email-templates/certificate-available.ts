@@ -142,7 +142,7 @@ export function certificateAvailableTemplate(data: CertificateData): EmailTempla
       <body>
         <div class="container">
           <div class="header">
-            <div class="logo">Ygor Luan Pro</div>
+            <div class="logo">Ygor Luan Academy</div>
             <div class="celebration">🎓</div>
             <h1 class="title">Parabéns!</h1>
             <p class="subtitle">Seu certificado está pronto</p>
@@ -154,13 +154,13 @@ export function certificateAvailableTemplate(data: CertificateData): EmailTempla
             </p>
 
             <p class="greeting">
-              Que incrível! Você completou todo o curso de Ygor Luan Pro e conquistou sua certificação de barbeiro profissional. 🏆
+              Que incrível! Você completou todo o curso de Ygor Luan Academy e conquistou sua certificação de barbeiro profissional. 🏆
             </p>
 
             <div class="achievement-box">
               <div class="achievement-icon">🎖️</div>
               <div class="achievement-text">Certificado de Conclusão</div>
-              <div class="achievement-name">Barbeiro Profissional - Ygor Luan Pro</div>
+              <div class="achievement-name">Barbeiro Profissional - Ygor Luan Academy</div>
               <p style="color: #cccccc; margin: 0;">Você domina técnicas avançadas de barbeiraria</p>
             </div>
 
@@ -187,7 +187,7 @@ export function certificateAvailableTemplate(data: CertificateData): EmailTempla
           </div>
 
           <div class="footer">
-            <p>© 2026 Ygor Luan Pro. Todos os direitos reservados.</p>
+            <p>© 2026 Ygor Luan Academy. Todos os direitos reservados.</p>
             <p>
               <a href="https://ygorluanpro.com.br/privacidade">Política de Privacidade</a> |
               <a href="https://ygorluanpro.com.br/termos">Termos de Serviço</a>

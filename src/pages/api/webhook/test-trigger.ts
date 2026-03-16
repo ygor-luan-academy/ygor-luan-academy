@@ -92,7 +92,7 @@ export const POST: APIRoute = async ({ request }) => {
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: '[TEST] Acesso ao Ygor Luan Pro',
+      subject: '[TEST] Acesso ao Ygor Luan Academy',
       html: recoveryLink
         ? `<p>Teste local. Email: ${email} | <a href="${recoveryLink}">Definir senha</a></p>`
         : `<p>Teste local. Email: ${email} | Link indisponível — acesse /login</p>`,

@@ -3,6 +3,7 @@ import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import Hero from '../components/landing/Hero.astro';
 import Benefits from '../components/landing/Benefits.astro';
+import BrandShowcase from '../components/landing/BrandShowcase.astro';
 import Testimonials from '../components/landing/Testimonials.astro';
 import FAQ from '../components/landing/FAQ.astro';
 import CTA from '../components/landing/CTA.astro';
@@ -24,7 +25,7 @@ const jsonLd = {
     },
     {
       "@type": "Course",
-      "name": "Mentoria Completa – Ygor Luan Pro",
+      "name": "Mentoria Completa – Ygor Luan Academy",
       "description": "Curso completo de barbearia profissional com videoaulas + sessões de mentoria 1:1.",
       "url": "https://ygorluanpro.com.br",
       "provider": { "@id": "https://ygorluanpro.com.br/#ygorluan" },
@@ -46,20 +47,24 @@ const jsonLd = {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Ygor Luan Pro – Mentoria para Barbeiros</title>
+    <title>Ygor Luan Academy – Mentoria para Barbeiros</title>
     <meta name="description" content="Aprenda barbearia profissional com Ygor Luan. Curso completo em vídeo + mentoria 1:1 personalizada." />
     <link rel="canonical" href="https://ygorluanpro.com.br/" />
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://ygorluanpro.com.br/" />
-    <meta property="og:title" content="Ygor Luan Pro – Mentoria para Barbeiros" />
+    <meta property="og:title" content="Ygor Luan Academy – Mentoria para Barbeiros" />
     <meta property="og:description" content="Aprenda barbearia profissional com Ygor Luan. Curso completo em vídeo + mentoria 1:1 personalizada." />
+    <meta property="og:image" content="https://ygorluanpro.com.br/images/og-cover.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="pt_BR" />
-    <meta property="og:site_name" content="Ygor Luan Pro" />
+    <meta property="og:site_name" content="Ygor Luan Academy" />
 
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Ygor Luan Pro – Mentoria para Barbeiros" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ygor Luan Academy – Mentoria para Barbeiros" />
     <meta name="twitter:description" content="Aprenda barbearia profissional com Ygor Luan. Curso completo em vídeo + mentoria 1:1 personalizada." />
+    <meta name="twitter:image" content="https://ygorluanpro.com.br/images/og-cover.jpg" />
 
     <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
 
@@ -70,6 +75,7 @@ const jsonLd = {
   <body>
     <Header />
     <Hero checkoutFailed={checkoutFailed} />
+    <BrandShowcase />
     <Benefits />
     <Testimonials />
     <CTA checkoutFailed={checkoutFailed} />

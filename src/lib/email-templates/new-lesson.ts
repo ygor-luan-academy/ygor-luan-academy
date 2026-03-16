@@ -125,7 +125,7 @@ export function newLessonTemplate(data: NewLessonData): EmailTemplate {
       <body>
         <div class="container">
           <div class="header">
-            <div class="logo">Ygor Luan Pro</div>
+            <div class="logo">Ygor Luan Academy</div>
             <h1 class="title">Nova aula! 📚</h1>
             <p class="subtitle">Conteúdo exclusivo te aguardando</p>
           </div>
@@ -152,7 +152,7 @@ export function newLessonTemplate(data: NewLessonData): EmailTemplate {
           </div>
 
           <div class="footer">
-            <p>© 2026 Ygor Luan Pro. Todos os direitos reservados.</p>
+            <p>© 2026 Ygor Luan Academy. Todos os direitos reservados.</p>
             <p>
               <a href="https://ygorluanpro.com.br/privacidade">Política de Privacidade</a> |
               <a href="https://ygorluanpro.com.br/termos">Termos de Serviço</a>
