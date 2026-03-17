@@ -55,18 +55,18 @@ test.describe('Fluxo do aluno autenticado', () => {
     await expect(page.locator('text=Módulo 1')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('text=Módulo 2')).toBeVisible();
     await expect(page.locator('text=Módulo 3')).toBeVisible();
-    await expect(page.locator('text=Bem-vindo ao Ygor Luan Pro')).toBeVisible();
+    await expect(page.locator('text=Bem-vindo ao Ygor Luan Academy')).toBeVisible();
   });
 
   test('navega para o player ao clicar em uma aula', async ({ page }) => {
     await page.goto('/dashboard/aulas');
-    await page.locator('text=Bem-vindo ao Ygor Luan Pro').click();
+    await page.locator('text=Bem-vindo ao Ygor Luan Academy').click();
     await expect(page).toHaveURL(/\/dashboard\/aula\/.+/, { timeout: 5000 });
   });
 
   test('página do player exibe controle de conclusão da aula', async ({ page }) => {
     await page.goto('/dashboard/aulas');
-    await page.locator('text=Bem-vindo ao Ygor Luan Pro').click();
+    await page.locator('text=Bem-vindo ao Ygor Luan Academy').click();
     await expect(page).toHaveURL(/\/dashboard\/aula\/.+/);
     const completeBtn = page.locator('button', { hasText: /conclu/i });
     const completedMsg = page.locator('p', { hasText: /conclu/i });

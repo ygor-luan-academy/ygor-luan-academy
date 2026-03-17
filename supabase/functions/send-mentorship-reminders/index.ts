@@ -62,7 +62,7 @@ function buildReminderHtml(displayName: string, formattedDate: string, formatted
   </head>
   <body>
     <div class="container">
-      <div class="logo">Ygor Luan Pro</div>
+      <div class="logo">Ygor Luan Academy</div>
       <h1 class="title">Lembrete importante!</h1>
       <p class="subtitle">Sua mentoria é amanhã</p>
       <div class="content">
@@ -85,7 +85,7 @@ function buildReminderHtml(displayName: string, formattedDate: string, formatted
         <a href="${meetingUrl}" class="cta-button">Acessar reunião →</a>
       </div>
       <div class="footer">
-        <p>© 2026 Ygor Luan Pro. Todos os direitos reservados.</p>
+        <p>© 2026 Ygor Luan Academy. Todos os direitos reservados.</p>
         <p>
           <a href="https://ygorluanpro.com.br/privacidade">Política de Privacidade</a> |
           <a href="https://ygorluanpro.com.br/termos">Termos de Serviço</a>

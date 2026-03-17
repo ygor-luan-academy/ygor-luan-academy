@@ -83,7 +83,7 @@ serve(async (req) => {
     body: JSON.stringify({
       from: 'noreply@ygorluanpro.com.br',
       to: email,
-      subject: 'Seu acesso ao Ygor Luan Pro está pronto!',
+      subject: 'Seu acesso ao Ygor Luan Academy está pronto!',
       html: `<h1>Parabéns!</h1><p>Senha temporária: <strong>${tempPassword}</strong></p><p><a href="${SITE_URL}/login">Acessar agora</a></p>`,
     }),
   });
