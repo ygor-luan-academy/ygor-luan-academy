@@ -1,22 +1,27 @@
 ---
+import { Image } from 'astro:assets';
+import carlosM from '../../assets/images/testimonials/carlos-m.jpg';
+import rafaelS from '../../assets/images/testimonials/rafael-s.jpg';
+import diegoF from '../../assets/images/testimonials/diego-f.jpg';
+
 const testimonials = [
   {
     name: 'Carlos M.',
     city: 'São Paulo, SP',
     text: 'Depois da mentoria com o Ygor, dobrei minha clientela em 3 meses. O método dele é cirúrgico.',
-    avatar: '/images/testimonials/carlos-m.jpg',
+    avatar: carlosM,
   },
   {
     name: 'Rafael S.',
     city: 'Belo Horizonte, MG',
     text: 'As aulas de técnica de barba mudaram completamente meu trabalho. Vale cada centavo.',
-    avatar: '/images/testimonials/rafael-s.jpg',
+    avatar: rafaelS,
   },
   {
     name: 'Diego F.',
     city: 'Curitiba, PR',
     text: 'A sessão 1:1 me ajudou a precificar meus serviços corretamente. Hoje ganho 40% mais.',
-    avatar: '/images/testimonials/diego-f.jpg',
+    avatar: diegoF,
   },
 ];
 ---
@@ -39,11 +44,11 @@ const testimonials = [
             {t.text}
           </p>
           <div class="flex items-center gap-3">
-            <img
+            <Image
               src={t.avatar}
               alt={t.name}
-              width="40"
-              height="40"
+              width={40}
+              height={40}
               class="rounded-full object-cover flex-shrink-0"
               style="width:40px;height:40px;border:1px solid rgba(201,133,58,0.40);"
             />
