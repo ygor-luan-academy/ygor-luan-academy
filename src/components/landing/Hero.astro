@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import CheckoutButton from '../../islands/CheckoutButton';
+import ygorLuanHero from '../../assets/images/ygor-luan-hero.jpg';
 
 interface Props {
   checkoutFailed?: boolean;
@@ -46,11 +48,11 @@ const { checkoutFailed = false } = Astro.props;
       </div>
 
       <div class="hidden lg:block flex-shrink-0 w-72 xl:w-80 self-end">
-        <img
-          src="/images/ygor-luan-hero.jpg"
+        <Image
+          src={ygorLuanHero}
           alt="Ygor Luan"
-          width="320"
-          height="480"
+          width={320}
+          height={480}
           class="w-full object-cover object-top"
           style="aspect-ratio: 2/3; border: 1px solid rgba(201,133,58,0.30);"
         />
