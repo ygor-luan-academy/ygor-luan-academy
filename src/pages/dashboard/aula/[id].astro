@@ -1,9 +1,11 @@
 ---
 import DashboardLayout from '../../../components/layout/DashboardLayout.astro';
 import VideoPlayer from '../../../islands/VideoPlayer';
+import LessonRating from '../../../islands/LessonRating';
 import { LessonsService } from '../../../services/lessons.service';
 import { ProgressService } from '../../../services/progress.service';
 import { MaterialsService } from '../../../services/materials.service';
+import { RatingsService } from '../../../services/ratings.service';
 import { findAdjacentLessons } from '../../../lib/utils';
 
 const { user, hasAccess } = Astro.locals;
@@ -13,11 +15,12 @@ if (!id) return Astro.redirect('/dashboard/aulas');
 
 if (!hasAccess) return Astro.redirect('/sem-acesso');
 
-const [lesson, progress, materials, allLessons] = await Promise.all([
+const [lesson, progress, materials, allLessons, existingRating] = await Promise.all([
   LessonsService.getById(id).catch(() => null),
   ProgressService.getLessonProgress(user!.id, id).catch(() => null),
   MaterialsService.getByLessonId(id).catch(() => []),
   LessonsService.getAll().catch(() => []),
+  RatingsService.getUserLessonRating(user!.id, id).catch(() => null),
 ]);
 
 if (!lesson) return Astro.redirect('/dashboard/aulas');
@@ -82,6 +85,13 @@ const { prev, next, position, total } = findAdjacentLessons(allLessons, id);
       </ul>
     </div>
   )}
+
+  <LessonRating
+    client:load
+    lessonId={lesson.id}
+    isCompleted={progress?.completed ?? false}
+    initialRating={existingRating}
+  />
 
   <div class="mt-8 flex items-center justify-between gap-4">
     {prev ? (

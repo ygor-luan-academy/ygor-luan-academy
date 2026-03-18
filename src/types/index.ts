@@ -42,6 +42,9 @@ export type ModuleWithQuiz = Module & {
   bestAttempt: Pick<QuizAttempt, 'score' | 'total'> | null;
 };
 
+export type LessonRating = Database['public']['Tables']['lesson_ratings']['Row'];
+export type LessonRatingInsert = Database['public']['Tables']['lesson_ratings']['Insert'];
+
 export type ProductId = 'videoaulas' | 'mentoria-completa';
 
 export interface PricingProduct {

@@ -1,0 +1,79 @@
+---
+import DashboardLayout from '../../components/layout/DashboardLayout.astro';
+import { RatingsService } from '../../services/ratings.service';
+
+const { user } = Astro.locals;
+const ratings = await RatingsService.getAllRatings();
+
+const totalCount = ratings.length;
+const averageGlobal = totalCount > 0
+  ? ratings.reduce((sum, r) => sum + r.rating, 0) / totalCount
+  : 0;
+
+const starsDisplay = (n: number) =>
+  '★'.repeat(n) + '☆'.repeat(5 - n);
+---
+
+<DashboardLayout title="Avaliações" user={user!} isAdmin={true}>
+  <div class="flex items-start justify-between mb-8">
+    <h1 class="font-display font-light text-3xl" style="color: var(--cream);">Avaliações de Aulas</h1>
+    <div class="flex gap-4">
+      <div style="background-color: var(--mahogany); border: 1px solid var(--blade); padding: 0.75rem 1.25rem; text-align: right;">
+        <p class="font-sans text-xs tracking-[0.1em] uppercase mb-1" style="color: var(--fade);">Total</p>
+        <p class="font-mono font-medium text-xl" style="color: var(--copper);">{totalCount}</p>
+      </div>
+      <div style="background-color: var(--mahogany); border: 1px solid var(--blade); padding: 0.75rem 1.25rem; text-align: right;">
+        <p class="font-sans text-xs tracking-[0.1em] uppercase mb-1" style="color: var(--fade);">Média geral</p>
+        <p class="font-mono font-medium text-xl" style="color: var(--copper);">{averageGlobal.toFixed(1)} ★</p>
+      </div>
+    </div>
+  </div>
+
+  {totalCount === 0 ? (
+    <div style="background-color: var(--mahogany); border: 1px solid var(--ink); padding: 3rem; text-align: center;">
+      <p class="font-sans text-sm" style="color: var(--fade);">Nenhuma avaliação registrada ainda.</p>
+    </div>
+  ) : (
+    <div style="background-color: var(--mahogany); border: 1px solid var(--ink);">
+      <div class="overflow-x-auto">
+        <table class="w-full font-sans text-sm">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--ink);">
+              <th class="text-left px-6 py-3 font-medium text-xs tracking-[0.1em] uppercase" style="color: var(--fade);">Aula</th>
+              <th class="text-left px-6 py-3 font-medium text-xs tracking-[0.1em] uppercase" style="color: var(--fade);">Aluno</th>
+              <th class="text-left px-6 py-3 font-medium text-xs tracking-[0.1em] uppercase" style="color: var(--fade);">Nota</th>
+              <th class="text-left px-6 py-3 font-medium text-xs tracking-[0.1em] uppercase" style="color: var(--fade);">Comentário</th>
+              <th class="text-left px-6 py-3 font-medium text-xs tracking-[0.1em] uppercase" style="color: var(--fade);">Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ratings.map((r) => (
+              <tr style="border-bottom: 1px solid var(--ink);">
+                <td class="px-6 py-4" style="color: var(--parchment); max-width: 200px;">
+                  <span class="truncate block">{r.lessons?.title ?? '—'}</span>
+                </td>
+                <td class="px-6 py-4" style="color: var(--parchment);">
+                  <div>{r.profiles?.full_name ?? '—'}</div>
+                  <div class="text-xs" style="color: var(--fade);">{r.profiles?.email}</div>
+                </td>
+                <td class="px-6 py-4 font-mono" style="color: var(--copper); white-space: nowrap;">
+                  {starsDisplay(r.rating)}
+                </td>
+                <td class="px-6 py-4" style="color: var(--parchment); max-width: 280px;">
+                  {r.comment ? (
+                    <span class="block" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">{r.comment}</span>
+                  ) : (
+                    <span style="color: var(--blade);">—</span>
+                  )}
+                </td>
+                <td class="px-6 py-4 font-mono text-xs" style="color: var(--fade); white-space: nowrap;">
+                  {new Date(r.created_at).toLocaleDateString('pt-BR')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )}
+</DashboardLayout>
