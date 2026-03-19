@@ -319,4 +319,42 @@ describe('QuizService', () => {
       await expect(QuizService.deleteQuestion('q-1')).rejects.toThrow('DB error');
     });
   });
+
+  describe('getAttemptCount', () => {
+    it('retorna a contagem de tentativas do usuário no módulo', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 2, error: null }),
+          }),
+        }),
+      } as never);
+      const count = await QuizService.getAttemptCount('user-1', 1);
+      expect(count).toBe(2);
+      expect(supabaseAdmin.from).toHaveBeenCalledWith('quiz_attempts');
+    });
+
+    it('retorna 0 quando não há tentativas', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: null, error: null }),
+          }),
+        }),
+      } as never);
+      const count = await QuizService.getAttemptCount('user-1', 99);
+      expect(count).toBe(0);
+    });
+
+    it('lança erro quando Supabase retorna erro', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: null, error: { message: 'DB error' } }),
+          }),
+        }),
+      } as never);
+      await expect(QuizService.getAttemptCount('user-1', 1)).rejects.toThrow('DB error');
+    });
+  });
 });

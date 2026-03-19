@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { QuizService } from '../../../../services/quiz.service';
+import { MAX_QUIZ_ATTEMPTS } from '../../../../lib/quiz-config';
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
   if (!locals.user)
@@ -21,6 +22,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ error: 'Cada resposta deve ser um inteiro entre 0 e 3' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 
   try {
+    const attemptCount = await QuizService.getAttemptCount(locals.user.id, moduleNumber);
+    if (attemptCount >= MAX_QUIZ_ATTEMPTS)
+      return new Response(JSON.stringify({ error: 'Limite de tentativas atingido' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
+
     const result = await QuizService.submitAttempt(locals.user.id, moduleNumber, answers as number[]);
     return new Response(JSON.stringify(result), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err) {

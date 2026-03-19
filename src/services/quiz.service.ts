@@ -102,4 +102,14 @@ export class QuizService {
       .eq('id', id);
     if (error) throw new Error(error.message);
   }
+
+  static async getAttemptCount(userId: string, moduleNumber: number): Promise<number> {
+    const { count, error } = await supabaseAdmin
+      .from('quiz_attempts')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('module_number', moduleNumber);
+    if (error) throw new Error(error.message);
+    return count ?? 0;
+  }
 }

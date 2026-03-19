@@ -9,6 +9,7 @@ vi.mock('../../../src/services/quiz.service', () => ({
     getPublicQuestionsByModule: vi.fn().mockResolvedValue([]),
     submitAttempt: vi.fn().mockResolvedValue({ score: 1, total: 1, correctIndices: [0] }),
     getBestAttempt: vi.fn().mockResolvedValue(null),
+    getAttemptCount: vi.fn().mockResolvedValue(0),
     createQuestion: vi.fn().mockResolvedValue({ id: 'q-1' }),
     updateQuestion: vi.fn().mockResolvedValue({ id: 'q-1' }),
     deleteQuestion: vi.fn().mockResolvedValue(undefined),
@@ -78,6 +79,22 @@ describe('POST /api/quiz/[module]/submit — autorização', () => {
   it('retorna 400 quando answers contém valor fora de 0–3', async () => {
     const res = await submitQuiz(makeContext({ user: mockUser, hasAccess: true, isAdmin: false }, { answers: [0, 5, -1] }));
     expect(res.status).toBe(400);
+  });
+  it('retorna 403 quando limite de tentativas atingido', async () => {
+    const { QuizService } = await import('../../../src/services/quiz.service');
+    vi.mocked(QuizService.getAttemptCount).mockResolvedValueOnce(2);
+    const res = await submitQuiz(makeContext({ user: mockUser, hasAccess: true, isAdmin: false }, { answers: [0] }));
+    expect(res.status).toBe(403);
+    const body = await res.json() as { error: string };
+    expect(body.error).toBe('Limite de tentativas atingido');
+  });
+  it('retorna 500 quando getAttemptCount lança erro', async () => {
+    const { QuizService } = await import('../../../src/services/quiz.service');
+    vi.mocked(QuizService.getAttemptCount).mockRejectedValueOnce(new Error('DB offline'));
+    const res = await submitQuiz(makeContext({ user: mockUser, hasAccess: true, isAdmin: false }, { answers: [0] }));
+    expect(res.status).toBe(500);
+    const body = await res.json() as { error: string };
+    expect(body.error).toBe('DB offline');
   });
 });
 

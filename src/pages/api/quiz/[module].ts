@@ -12,11 +12,12 @@ export const GET: APIRoute = async ({ params, locals }) => {
     return new Response(JSON.stringify({ error: 'Módulo inválido' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
 
   try {
-    const [questions, bestAttempt] = await Promise.all([
+    const [questions, bestAttempt, attemptCount] = await Promise.all([
       QuizService.getPublicQuestionsByModule(moduleNumber),
       QuizService.getBestAttempt(locals.user.id, moduleNumber),
+      QuizService.getAttemptCount(locals.user.id, moduleNumber),
     ]);
-    return new Response(JSON.stringify({ questions, bestAttempt }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ questions, bestAttempt, attemptCount }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erro interno';
     return new Response(JSON.stringify({ error: message }), { status: 500, headers: { 'Content-Type': 'application/json' } });

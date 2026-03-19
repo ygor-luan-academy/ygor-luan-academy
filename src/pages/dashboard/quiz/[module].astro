@@ -10,10 +10,11 @@ if (!hasAccess) return Astro.redirect('/sem-acesso');
 const moduleNumber = Number(Astro.params.module);
 if (isNaN(moduleNumber) || moduleNumber < 1) return Astro.redirect('/dashboard/aulas');
 
-const [questions, bestAttempt, modules] = await Promise.all([
+const [questions, bestAttempt, modules, attemptCount] = await Promise.all([
   QuizService.getPublicQuestionsByModule(moduleNumber).catch(() => []),
   QuizService.getBestAttempt(user!.id, moduleNumber).catch(() => null),
   LessonsService.getAllModules().catch(() => []),
+  QuizService.getAttemptCount(user!.id, moduleNumber).catch(() => 0),
 ]);
 
 const moduleTitle = modules.find((m) => m.order_number === moduleNumber)?.title ?? `Módulo ${moduleNumber}`;
@@ -24,7 +25,7 @@ const moduleTitle = modules.find((m) => m.order_number === moduleNumber)?.title 
   <p class="section-eyebrow mt-6">Quiz</p>
   <h1 class="font-display font-light text-4xl mt-1 mb-6" style="color: var(--cream);">{moduleTitle}</h1>
   <div class="page-divider"></div>
-  <QuizPlayer moduleNumber={moduleNumber} questions={questions} initialBestAttempt={bestAttempt} client:load />
+  <QuizPlayer moduleNumber={moduleNumber} questions={questions} initialBestAttempt={bestAttempt} initialAttemptCount={attemptCount} client:load />
 </DashboardLayout>
 
 <style>

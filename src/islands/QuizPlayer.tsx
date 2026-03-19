@@ -1,22 +1,28 @@
 import { useState } from 'react';
 import type { QuizQuestionPublic, QuizAttemptResult } from '../types';
+import { MAX_QUIZ_ATTEMPTS } from '../lib/quiz-config';
 
 interface QuizPlayerProps {
   moduleNumber: number;
   questions: QuizQuestionPublic[];
   initialBestAttempt: { score: number; total: number } | null;
+  initialAttemptCount: number;
 }
 
 type QuizState = 'idle' | 'answering' | 'submitted';
 const LABELS = ['A', 'B', 'C', 'D'];
 
-export default function QuizPlayer({ moduleNumber, questions, initialBestAttempt }: QuizPlayerProps) {
+export default function QuizPlayer({ moduleNumber, questions, initialBestAttempt, initialAttemptCount }: QuizPlayerProps) {
   const [state, setState] = useState<QuizState>('idle');
   const [selected, setSelected] = useState<(number | null)[]>(Array(questions.length).fill(null));
   const [result, setResult] = useState<QuizAttemptResult | null>(null);
   const [bestAttempt, setBestAttempt] = useState(initialBestAttempt);
+  const [attemptCount, setAttemptCount] = useState(initialAttemptCount);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const attemptsLeft = Math.max(0, MAX_QUIZ_ATTEMPTS - attemptCount);
+  const canAttempt = attemptsLeft > 0;
 
   const allAnswered = selected.every((s) => s !== null);
 
@@ -40,6 +46,7 @@ export default function QuizPlayer({ moduleNumber, questions, initialBestAttempt
       if (!res.ok) throw new Error(data.error ?? 'Erro ao enviar respostas');
       setResult(data);
       setState('submitted');
+      setAttemptCount((prev) => prev + 1);
       if (!bestAttempt || data.score > bestAttempt.score) setBestAttempt({ score: data.score, total: data.total });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro inesperado');
@@ -64,11 +71,21 @@ export default function QuizPlayer({ moduleNumber, questions, initialBestAttempt
         <div style={{ marginBottom: '1.5rem' }}>
           <p className="font-sans text-sm mb-4" style={{ color: 'var(--parchment)' }}>
             {questions.length} {questions.length === 1 ? 'questão' : 'questões'} sobre este módulo.
-            {bestAttempt && ' Você pode refazer para melhorar sua nota.'}
           </p>
-          <button onClick={() => setState('answering')} className="btn-primary">
-            {bestAttempt ? 'Refazer Quiz' : 'Iniciar Quiz'}
-          </button>
+          {canAttempt ? (
+            <>
+              <p className="font-sans text-xs mb-4" style={{ color: 'var(--fade)' }}>
+                {attemptsLeft} tentativa{attemptsLeft !== 1 ? 's' : ''} restante{attemptsLeft !== 1 ? 's' : ''}
+              </p>
+              <button onClick={() => setState('answering')} className="btn-primary">
+                {bestAttempt ? 'Refazer Quiz' : 'Iniciar Quiz'}
+              </button>
+            </>
+          ) : (
+            <p className="font-sans text-sm" style={{ color: 'var(--fade)' }}>
+              Você utilizou todas as suas tentativas.
+            </p>
+          )}
         </div>
       )}
       {(state === 'answering' || state === 'submitted') && (
@@ -119,7 +136,14 @@ export default function QuizPlayer({ moduleNumber, questions, initialBestAttempt
                 <p className="font-display font-light text-2xl" style={{ color: 'var(--cream)' }}>{result.score}/{result.total} corretas</p>
                 <p className="font-sans text-xs mt-1" style={{ color: 'var(--fade)' }}>{Math.round((result.score / result.total) * 100)}% de aproveitamento</p>
               </div>
-              <button type="button" onClick={handleRetry} className="btn-ghost">Refazer Quiz</button>
+              {canAttempt && (
+                <button type="button" onClick={handleRetry} className="btn-ghost">Refazer Quiz</button>
+              )}
+              {!canAttempt && (
+                <p className="font-sans text-sm" style={{ color: 'var(--fade)' }}>
+                  Você utilizou todas as suas tentativas.
+                </p>
+              )}
             </div>
           )}
         </form>
