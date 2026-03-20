@@ -13,9 +13,9 @@ interface ImportMetaEnv {
   readonly PUBLIC_SUPABASE_URL: string;
   readonly PUBLIC_SUPABASE_ANON_KEY: string;
   readonly SUPABASE_SERVICE_ROLE_KEY: string;
-  readonly MERCADOPAGO_ACCESS_TOKEN: string;
-  readonly MERCADOPAGO_PUBLIC_KEY: string;
-  readonly MERCADOPAGO_WEBHOOK_SECRET?: string;
+  readonly CAKTO_WEBHOOK_SECRET?: string;
+  readonly PUBLIC_CAKTO_CHECKOUT_URL_VIDEOAULAS?: string;
+  readonly PUBLIC_CAKTO_CHECKOUT_URL_MENTORIA?: string;
   readonly VIMEO_ACCESS_TOKEN: string;
   readonly RESEND_API_KEY: string;
   readonly RESEND_FROM_EMAIL: string;

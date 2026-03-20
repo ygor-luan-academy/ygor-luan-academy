@@ -57,6 +57,7 @@ vi.mock('../src/lib/supabase', () => {
         admin: {
           createUser: vi.fn(() => Promise.resolve({ data: { user: { id: 'test-user-id' } }, error: null })),
           listUsers: vi.fn(() => Promise.resolve({ data: { users: [] } })),
+          generateLink: vi.fn(() => Promise.resolve({ data: { properties: { action_link: 'https://test.supabase.co/auth/confirm?token=test' } }, error: null })),
         },
       },
     },

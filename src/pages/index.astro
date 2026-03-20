@@ -9,7 +9,6 @@ import FAQ from '../components/landing/FAQ.astro';
 import CTA from '../components/landing/CTA.astro';
 import '../styles/global.css';
 
-const checkoutFailed = Astro.url.searchParams.get('checkout') === 'failed';
 const isLaunchMode = import.meta.env.PUBLIC_IS_LAUNCH_MODE === 'true';
 const coursePrice = isLaunchMode ? '997' : '1497';
 
@@ -74,11 +73,11 @@ const jsonLd = {
   </head>
   <body>
     <Header />
-    <Hero checkoutFailed={checkoutFailed} />
+    <Hero />
     <BrandShowcase />
     <Benefits />
     <Testimonials />
-    <CTA checkoutFailed={checkoutFailed} />
+    <CTA />
     <FAQ />
     <Footer />
   </body>

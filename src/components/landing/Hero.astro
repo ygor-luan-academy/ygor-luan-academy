@@ -3,11 +3,7 @@ import { Image } from 'astro:assets';
 import CheckoutButton from '../../islands/CheckoutButton';
 import ygorLuanHero from '../../assets/images/ygor-luan-hero.jpg';
 
-interface Props {
-  checkoutFailed?: boolean;
-}
-
-const { checkoutFailed = false } = Astro.props;
+const checkoutUrl = import.meta.env.PUBLIC_CAKTO_CHECKOUT_URL_MENTORIA ?? '#';
 ---
 
 <section class="relative min-h-screen flex flex-col justify-end pt-16" style="background-color: var(--espresso);">
@@ -34,7 +30,7 @@ const { checkoutFailed = false } = Astro.props;
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 items-start mb-12">
-          <CheckoutButton client:load initialError={checkoutFailed ? 'Pagamento não concluído. Tente novamente.' : undefined} />
+          <CheckoutButton client:load checkoutUrl={checkoutUrl} />
           <a href="#beneficios" class="btn-ghost">
             Ver conteúdo
           </a>

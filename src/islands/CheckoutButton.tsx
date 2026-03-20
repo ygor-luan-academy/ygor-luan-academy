@@ -1,89 +1,37 @@
-import { useState } from 'react';
-import type { ProductId } from '../types';
-
 interface CheckoutButtonProps {
+  checkoutUrl: string;
   fullWidth?: boolean;
-  initialError?: string;
-  productId?: ProductId;
-  disabled?: boolean;
   ctaText?: string;
+  disabled?: boolean;
 }
 
 export default function CheckoutButton({
+  checkoutUrl,
   fullWidth = false,
-  initialError,
-  productId = 'mentoria-completa',
+  ctaText = 'Quero começar →',
   disabled = false,
-  ctaText,
 }: CheckoutButtonProps) {
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(initialError ?? null);
-
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, productId }),
-      });
-
-      const data = await res.json() as { checkoutUrl?: string; error?: string };
-
-      if (!res.ok || !data.checkoutUrl) {
-        throw new Error(data.error ?? 'Erro ao gerar checkout');
-      }
-
-      window.location.href = data.checkoutUrl;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Tente novamente.');
-      setLoading(false);
-    }
-  };
-
-  const buttonLabel = loading ? 'Aguarde...' : (ctaText ?? 'Quero começar →');
-  const isDisabled = loading || disabled;
-
-  if (fullWidth) {
+  if (disabled) {
     return (
-      <form onSubmit={handleSubmit} className="w-full">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
-          required
-          placeholder="Seu melhor e-mail"
-          className="input-field mb-3"
-          disabled={isDisabled}
-        />
-        <button type="submit" disabled={isDisabled} className="btn-primary w-full">
-          {buttonLabel}
-        </button>
-        {error && <p style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '0.5rem' }}>{error}</p>}
-      </form>
+      <button
+        disabled
+        className={`btn-primary${fullWidth ? ' w-full' : ''}`}
+        style={{ opacity: 0.5, cursor: 'not-allowed' }}
+      >
+        {ctaText}
+      </button>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
-        required
-        placeholder="Seu melhor e-mail"
-        className="input-field"
-        style={{ flex: '1' }}
-        disabled={isDisabled}
-      />
-      <button type="submit" disabled={isDisabled} className="btn-primary whitespace-nowrap">
-        {buttonLabel}
-      </button>
-      {error && <p style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '0.5rem', width: '100%' }}>{error}</p>}
-    </form>
+    <a
+      href={checkoutUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`btn-primary${fullWidth ? ' w-full' : ''}`}
+      style={{ display: 'inline-block', textAlign: 'center' }}
+    >
+      {ctaText}
+    </a>
   );
 }

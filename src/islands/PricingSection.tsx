@@ -14,9 +14,9 @@ function formatPrice(value: number): string {
 export default function PricingSection({ isLaunchMode, spotsRemaining, products }: PricingSectionProps) {
   return (
     <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-      {products.map((product) => (
+      {products.map((product, index) => (
         <div
-          key={product.id}
+          key={index}
           style={{
             backgroundColor: 'var(--mahogany)',
             border: product.highlighted ? '1px solid var(--copper)' : '1px solid var(--blade)',
@@ -105,7 +105,7 @@ export default function PricingSection({ isLaunchMode, spotsRemaining, products 
 
           <CheckoutButton
             fullWidth
-            productId={product.id}
+            checkoutUrl={product.checkoutUrl}
             ctaText={product.highlighted && spotsRemaining <= 0 ? 'Lista de Espera' : product.cta}
             disabled={product.highlighted && isLaunchMode && spotsRemaining <= 0}
           />

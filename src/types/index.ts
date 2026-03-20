@@ -45,10 +45,8 @@ export type ModuleWithQuiz = Module & {
 export type LessonRating = Database['public']['Tables']['lesson_ratings']['Row'];
 export type LessonRatingInsert = Database['public']['Tables']['lesson_ratings']['Insert'];
 
-export type ProductId = 'videoaulas' | 'mentoria-completa';
-
 export interface PricingProduct {
-  id: ProductId;
+  checkoutUrl: string;
   eyebrow: string;
   title: string;
   features: string[];
