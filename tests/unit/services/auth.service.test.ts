@@ -18,7 +18,7 @@ describe('AuthService', () => {
       expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledOnce();
       const [email, options] = vi.mocked(supabase.auth.resetPasswordForEmail).mock.calls[0];
       expect(email).toBe('aluno@exemplo.com');
-      expect(options?.redirectTo).toContain('/redefinir-senha');
+      expect(options?.redirectTo).toContain('/auth/callback?next=/redefinir-senha');
     });
 
     it('lança erro quando Supabase retorna erro', async () => {
