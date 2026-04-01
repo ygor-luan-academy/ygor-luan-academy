@@ -1,23 +1,12 @@
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 
-const supabaseBrowser = createClient(
+const supabase = createBrowserClient(
   import.meta.env.PUBLIC_SUPABASE_URL,
   import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-  { auth: { persistSession: true } },
 );
 
 type FormState = 'loading' | 'error' | 'ready' | 'success';
-
-function parseRecoveryHash(hash: string): { accessToken: string; refreshToken: string } | null {
-  const params = new URLSearchParams(hash.replace(/^#/, ''));
-  const accessToken = params.get('access_token');
-  const refreshToken = params.get('refresh_token');
-  const type = params.get('type');
-
-  if (type !== 'recovery' || !accessToken || !refreshToken) return null;
-  return { accessToken, refreshToken };
-}
 
 const labelStyle = {
   color: 'var(--parchment)',
@@ -36,24 +25,14 @@ export default function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const tokens = parseRecoveryHash(window.location.hash);
-
-    if (!tokens) {
-      setErrorMessage('Link inválido ou expirado.');
-      setState('error');
-      return;
-    }
-
-    supabaseBrowser.auth
-      .setSession({ access_token: tokens.accessToken, refresh_token: tokens.refreshToken })
-      .then(({ error }) => {
-        if (error) {
-          setErrorMessage('Link inválido ou expirado. Solicite um novo.');
-          setState('error');
-        } else {
-          setState('ready');
-        }
-      });
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        setErrorMessage('Link inválido ou expirado. Solicite um novo.');
+        setState('error');
+      } else {
+        setState('ready');
+      }
+    });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -72,7 +51,7 @@ export default function ResetPasswordForm() {
     setLoading(true);
     setErrorMessage(null);
 
-    const { error } = await supabaseBrowser.auth.updateUser({ password });
+    const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
       setErrorMessage(error.message);
@@ -107,6 +86,18 @@ export default function ResetPasswordForm() {
         }}
       >
         {errorMessage}
+        <br />
+        <a
+          href="/login"
+          style={{
+            color: 'var(--copper)',
+            textDecoration: 'underline',
+            marginTop: '0.5rem',
+            display: 'inline-block',
+          }}
+        >
+          Solicitar novo link
+        </a>
       </div>
     );
   }

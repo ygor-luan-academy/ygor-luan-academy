@@ -2,15 +2,15 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockSetSession, mockUpdateUser } = vi.hoisted(() => ({
-  mockSetSession: vi.fn(),
+const { mockGetUser, mockUpdateUser } = vi.hoisted(() => ({
+  mockGetUser: vi.fn(),
   mockUpdateUser: vi.fn(),
 }));
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(() => ({
+vi.mock('@supabase/ssr', () => ({
+  createBrowserClient: vi.fn(() => ({
     auth: {
-      setSession: mockSetSession,
+      getUser: mockGetUser,
       updateUser: mockUpdateUser,
     },
   })),
@@ -22,7 +22,7 @@ describe('ResetPasswordForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     Object.defineProperty(window, 'location', {
-      value: { hash: '', href: '' },
+      value: { href: '' },
       writable: true,
       configurable: true,
     });
@@ -32,25 +32,20 @@ describe('ResetPasswordForm', () => {
     vi.unstubAllGlobals();
   });
 
-  it('mostra erro quando não há hash de recovery na URL', async () => {
+  it('mostra erro quando não há sessão ativa (getUser retorna null)', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: null } });
+
     render(<ResetPasswordForm />);
 
     await waitFor(() => {
-      expect(screen.getByText('Link inválido ou expirado.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Link inválido ou expirado. Solicite um novo.'),
+      ).toBeInTheDocument();
     });
   });
 
-  it('deve mostrar erro quando setSession falhar', async () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        hash: '#access_token=valid-token&refresh_token=valid-refresh&type=recovery',
-        href: '',
-      },
-      writable: true,
-      configurable: true,
-    });
-
-    mockSetSession.mockResolvedValueOnce({ error: { message: 'expired' } });
+  it('deve mostrar erro quando getUser retornar usuário nulo', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: null } });
 
     render(<ResetPasswordForm />);
 
@@ -62,16 +57,7 @@ describe('ResetPasswordForm', () => {
   });
 
   it('mostra formulário quando o token de recovery é válido', async () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        hash: '#access_token=valid-token&refresh_token=valid-refresh&type=recovery',
-        href: '',
-      },
-      writable: true,
-      configurable: true,
-    });
-
-    mockSetSession.mockResolvedValueOnce({ error: null });
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'user-123' } } });
 
     render(<ResetPasswordForm />);
 
@@ -81,16 +67,7 @@ describe('ResetPasswordForm', () => {
   });
 
   it('mostra erro quando as senhas não conferem', async () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        hash: '#access_token=valid-token&refresh_token=valid-refresh&type=recovery',
-        href: '',
-      },
-      writable: true,
-      configurable: true,
-    });
-
-    mockSetSession.mockResolvedValueOnce({ error: null });
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'user-123' } } });
 
     render(<ResetPasswordForm />);
 
@@ -110,16 +87,7 @@ describe('ResetPasswordForm', () => {
   });
 
   it('mostra erro quando updateUser falhar', async () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        hash: '#access_token=valid-token&refresh_token=valid-refresh&type=recovery',
-        href: '',
-      },
-      writable: true,
-      configurable: true,
-    });
-
-    mockSetSession.mockResolvedValueOnce({ error: null });
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'user-123' } } });
     mockUpdateUser.mockResolvedValueOnce({ error: { message: 'Senha muito fraca' } });
 
     render(<ResetPasswordForm />);
@@ -142,16 +110,7 @@ describe('ResetPasswordForm', () => {
   });
 
   it('redireciona para /login após sucesso', async () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        hash: '#access_token=valid-token&refresh_token=valid-refresh&type=recovery',
-        href: '',
-      },
-      writable: true,
-      configurable: true,
-    });
-
-    mockSetSession.mockResolvedValueOnce({ error: null });
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'user-123' } } });
     mockUpdateUser.mockResolvedValueOnce({ data: { user: {} }, error: null });
 
     vi.useFakeTimers({ shouldAdvanceTime: true });
