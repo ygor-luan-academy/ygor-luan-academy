@@ -20,6 +20,13 @@ export const POST: APIRoute = async ({ locals, request }) => {
     );
   }
 
+  if (!/^[a-zA-Z0-9_\-/.]+$/.test(body.file_url) || body.file_url.includes('..')) {
+    return new Response(
+      JSON.stringify({ error: 'file_url deve ser um caminho relativo de storage (ex: uuid/arquivo.pdf)' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
     const material = await MaterialsService.create({
       lesson_id: body.lesson_id,
