@@ -59,7 +59,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     });
   }
 
-  const comment = typeof body.comment === 'string' ? body.comment.trim() || undefined : undefined;
+  const comment = typeof body.comment === 'string' ? body.comment.trim().slice(0, 1000) || undefined : undefined;
 
   try {
     const rating = await RatingsService.upsertRating(locals.user.id, lessonId, ratingValue, comment);

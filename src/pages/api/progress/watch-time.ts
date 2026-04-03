@@ -28,6 +28,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
+  if (typeof watchTime !== 'number' || !Number.isFinite(watchTime) || watchTime < 0 || watchTime > 86400) {
+    return new Response(JSON.stringify({ error: 'watchTime deve ser um número entre 0 e 86400' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
     await ProgressService.updateWatchTime(locals.user.id, lessonId, watchTime);
   } catch (err) {
