@@ -71,6 +71,14 @@ export class QuizService {
     return data !== null;
   }
 
+  static async getModulesWithQuestions(): Promise<Set<number>> {
+    const { data, error } = await supabaseAdmin
+      .from('quiz_questions')
+      .select('module_number');
+    if (error) throw new Error(error.message);
+    return new Set((data ?? []).map((r) => r.module_number as number));
+  }
+
   static async createQuestion(input: Omit<QuizQuestion, 'id' | 'created_at'>): Promise<QuizQuestion> {
     const { data, error } = await supabaseAdmin
       .from('quiz_questions')

@@ -2,6 +2,18 @@ import { supabaseAdmin } from '../lib/supabase-admin';
 import type { Lesson, Module } from '../types';
 
 export class LessonsService {
+  static async getAllMinimal(): Promise<Pick<Lesson, 'id' | 'title' | 'module_number' | 'order_number'>[]> {
+    const { data, error } = await supabaseAdmin
+      .from('lessons')
+      .select('id, title, module_number, order_number')
+      .eq('is_published', true)
+      .order('module_number')
+      .order('order_number');
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  }
+
   static async getAll(): Promise<Lesson[]> {
     const { data, error } = await supabaseAdmin
       .from('lessons')

@@ -15,18 +15,13 @@ let quizMap = new Map<number, boolean>();
 let aulasLoadError = false;
 
 try {
+  const modulesWithQuiz = await QuizService.getModulesWithQuestions().catch(() => new Set<number>());
   [lessons, progressList, modulesList] = await Promise.all([
     LessonsService.getAll(),
     ProgressService.getUserProgress(user!.id),
     LessonsService.getAllModules(),
   ]);
-  const quizFlags = await Promise.all(
-    modulesList.map(async (m) => ({
-      moduleNumber: m.order_number,
-      hasQuiz: await QuizService.hasQuestions(m.order_number).catch(() => false),
-    }))
-  );
-  quizMap = new Map(quizFlags.map(({ moduleNumber, hasQuiz }) => [moduleNumber, hasQuiz]));
+  quizMap = new Map([...modulesWithQuiz].map((n) => [n, true]));
 } catch (err) {
   console.error('Dashboard aulas: erro ao carregar dados', err);
   aulasLoadError = true;

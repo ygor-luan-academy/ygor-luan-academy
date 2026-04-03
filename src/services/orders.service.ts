@@ -48,7 +48,7 @@ export class OrdersService {
   static async getTotalRevenue(): Promise<number> {
     const { data, error } = await supabaseAdmin
       .from('orders')
-      .select('*')
+      .select('amount')
       .eq('status', 'approved');
 
     if (error) throw new Error(error.message);

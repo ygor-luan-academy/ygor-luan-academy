@@ -19,7 +19,7 @@ const [lesson, progress, materials, allLessons, existingRating] = await Promise.
   LessonsService.getById(id).catch(() => null),
   ProgressService.getLessonProgress(user!.id, id).catch(() => null),
   MaterialsService.getByLessonId(id).catch(() => []),
-  LessonsService.getAll().catch(() => []),
+  LessonsService.getAllMinimal().catch(() => []),
   RatingsService.getUserLessonRating(user!.id, id).catch(() => null),
 ]);
 
