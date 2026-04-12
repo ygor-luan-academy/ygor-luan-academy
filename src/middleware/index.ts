@@ -5,10 +5,10 @@ import type { Database } from '../types/database.types';
 import { UsersService } from '../services/users.service';
 import { OrdersService } from '../services/orders.service';
 
-const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/api/progress', '/api/admin', '/api/quiz', '/api/lessons'];
+const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/api/progress', '/api/admin', '/api/quiz', '/api/lessons', '/api/comments'];
 const ADMIN_PREFIXES = ['/admin', '/api/admin'];
 const DASHBOARD_PREFIXES = ['/dashboard'];
-const API_PREFIXES = ['/api/progress', '/api/admin', '/api/quiz', '/api/lessons'];
+const API_PREFIXES = ['/api/progress', '/api/admin', '/api/quiz', '/api/lessons', '/api/comments'];
 
 export const onRequest = defineMiddleware(async (
   { url, request, cookies, locals, redirect },
