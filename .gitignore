@@ -21,6 +21,7 @@ pnpm-debug.log*
 
 # claude / mcp / opencode
 .claude/
+.omc/
 .mcp.json
 .opencode.json
 opencode.json
@@ -43,5 +44,3 @@ supabase/.temp/
 
 # git worktrees
 .worktrees/
-
-.mcp.json
