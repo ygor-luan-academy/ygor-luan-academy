@@ -1,0 +1,67 @@
+---
+import DashboardLayout from '../../components/layout/DashboardLayout.astro';
+import { CertificateService } from '../../services/certificate.service';
+import { formatDate } from '../../lib/utils';
+
+const { user } = Astro.locals;
+
+let certificates: Awaited<ReturnType<typeof CertificateService.getAllAdmin>> = [];
+let loadError = false;
+
+try {
+  certificates = await CertificateService.getAllAdmin();
+} catch (err) {
+  console.error('Admin certificados: erro ao carregar dados', err);
+  loadError = true;
+}
+---
+
+<DashboardLayout title="Certificados" user={user!} isAdmin={true}>
+  <p class="section-eyebrow">Administração</p>
+  <h1 class="font-display font-light text-4xl mt-1 mb-8" style="color: var(--cream);">Certificados</h1>
+
+  {loadError && (
+    <p class="font-sans text-sm mb-6" style="color: #f87171;">Erro ao carregar dados. Tente recarregar a página.</p>
+  )}
+
+  {!loadError && certificates.length === 0 && (
+    <p class="font-sans text-sm" style="color: var(--fade);">Nenhum certificado emitido ainda.</p>
+  )}
+
+  {!loadError && certificates.length > 0 && (
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-family: var(--font-sans, 'DM Sans', sans-serif); font-size: 0.875rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--blade);">
+            <th class="font-sans text-xs uppercase tracking-widest text-left pb-3 pr-6" style="color: var(--fade);">Nome</th>
+            <th class="font-sans text-xs uppercase tracking-widest text-left pb-3 pr-6" style="color: var(--fade);">Email</th>
+            <th class="font-sans text-xs uppercase tracking-widest text-left pb-3 pr-6" style="color: var(--fade);">N. Certificado</th>
+            <th class="font-sans text-xs uppercase tracking-widest text-left pb-3 pr-6" style="color: var(--fade);">Conclusão</th>
+            <th class="font-sans text-xs uppercase tracking-widest text-left pb-3" style="color: var(--fade);">Emissão</th>
+          </tr>
+        </thead>
+        <tbody>
+          {certificates.map((cert) => (
+            <tr style="border-bottom: 1px solid var(--ink);">
+              <td class="py-3 pr-6" style="color: var(--cream);">{cert.student_name ?? '—'}</td>
+              <td class="py-3 pr-6" style="color: var(--fade);">{cert.student_email}</td>
+              <td class="py-3 pr-6">
+                <a
+                  href={`/certificado/verificar/${cert.certificate_number}`}
+                  class="font-mono text-xs"
+                  style="color: var(--copper);"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {cert.certificate_number}
+                </a>
+              </td>
+              <td class="py-3 pr-6" style="color: var(--fade);">{formatDate(cert.completed_at)}</td>
+              <td class="py-3" style="color: var(--fade);">{formatDate(cert.issued_at)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</DashboardLayout>
