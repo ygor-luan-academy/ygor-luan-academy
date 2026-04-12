@@ -49,6 +49,9 @@ Features entregues e testadas.
 - [x] Sistema de avaliacao de aulas (RatingsService, LessonRating island, /admin/avaliacoes, API route)
 - [x] Sistema de certificado (migration 012, CertificateService, /dashboard/certificado, /certificado/verificar/[code], /admin/certificados)
 
+### V1.2
+- [x] Comunidade (comentarios por aula) — CommentsService, LessonComments island, AdminCommentsManager, moderacao admin
+
 ---
 
 ## Em Andamento
@@ -63,9 +66,8 @@ Proximo a implementar, em ordem de prioridade.
 
 | # | Feature | Versao | Complexidade | Descricao |
 |---|---------|--------|--------------|-----------|
-| 1 | Comunidade (comentarios) | V1.2 | Alta | Comentarios por aula, moderacao admin |
-| 2 | Live classes (streaming) | V1.2 | Alta | Aulas ao vivo com notificacao |
-| 3 | App mobile (React Native) | V1.2 | Muito Alta | App nativo com acesso ao conteudo |
+| 1 | Live classes (streaming) | V1.2 | Alta | Aulas ao vivo com notificacao |
+| 2 | App mobile (React Native) | V1.2 | Muito Alta | App nativo com acesso ao conteudo |
 
 ---
 

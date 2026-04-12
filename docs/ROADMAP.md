@@ -11,15 +11,15 @@
 - Painel admin basico
 
 ## V1.1 (Semanas 7-10)
-- [ ] Sistema de certificado
+- [x] Sistema de certificado
 - [x] Progresso visual (barra de conclusao)
 - [x] Notificacoes por email
 - [x] Quiz por modulo
 - [x] Materiais complementares por aula
+- [x] Sistema de avaliacao de aulas
 
 ## V1.2 (Semanas 11-14)
-- [ ] Sistema de avaliacao de aulas
-- [ ] Comunidade (comentarios)
+- [x] Comunidade (comentarios)
 - [ ] Live classes (streaming)
 - [ ] App mobile (React Native)
 
