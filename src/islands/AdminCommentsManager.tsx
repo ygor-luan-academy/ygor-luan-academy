@@ -13,9 +13,11 @@ export default function AdminCommentsManager() {
 
   useEffect(() => {
     fetch('/api/admin/comments')
-      .then((r) => r.json())
-      .then((data: { comments?: CommentAdmin[]; error?: string }) => {
-        if (data.error) { setError(data.error); return; }
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data: { comments?: CommentAdmin[] }) => {
         setComments(data.comments ?? []);
       })
       .catch(() => setError('Erro ao carregar comentários.'))
@@ -25,12 +27,15 @@ export default function AdminCommentsManager() {
   const handleDelete = async (commentId: string) => {
     try {
       const res = await fetch(`/api/comments/${commentId}`, { method: 'DELETE' });
-      if (!res.ok) return;
+      if (!res.ok) {
+        setError('Erro ao deletar comentário. Tente novamente.');
+        return;
+      }
       setComments((prev) => prev.map((c) =>
         c.id === commentId ? { ...c, deleted_at: new Date().toISOString() } : c,
       ));
     } catch {
-      // silently ignore
+      setError('Erro ao deletar comentário. Tente novamente.');
     }
   };
 
