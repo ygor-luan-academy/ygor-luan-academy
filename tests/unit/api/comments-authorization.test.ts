@@ -14,11 +14,13 @@ vi.mock('../../../src/services/comments.service', () => ({
     }),
     getOwner: vi.fn().mockResolvedValue('user-1'),
     softDelete: vi.fn().mockResolvedValue(undefined),
+    getAllAdmin: vi.fn().mockResolvedValue([]),
   },
 }));
 
 import { GET as getComments, POST as postComment } from '../../../src/pages/api/lessons/[id]/comments';
 import { DELETE as deleteComment } from '../../../src/pages/api/comments/[id]';
+import { GET as getAdminComments } from '../../../src/pages/api/admin/comments';
 
 const mockUser = { id: 'user-1', email: 'aluno@test.com' };
 const mockAdmin = { id: 'admin-1', email: 'admin@test.com' };
@@ -140,5 +142,29 @@ describe('DELETE /api/comments/[id] — autorização', () => {
     const ctx = makeContext({ user: mockAdmin, hasAccess: true, isAdmin: true }, { method: 'DELETE', params: { id: 'c-1' } });
     const res = await deleteComment(ctx);
     expect(res.status).toBe(200);
+  });
+});
+
+describe('GET /api/admin/comments — autorização', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('retorna 401 quando não autenticado', async () => {
+    const ctx = makeContext({ user: undefined, isAdmin: false, hasAccess: false });
+    const res = await getAdminComments(ctx);
+    expect(res.status).toBe(401);
+  });
+
+  it('retorna 403 quando autenticado mas não é admin', async () => {
+    const ctx = makeContext({ user: mockUser, isAdmin: false, hasAccess: true });
+    const res = await getAdminComments(ctx);
+    expect(res.status).toBe(403);
+  });
+
+  it('retorna 200 com lista de comentários quando é admin', async () => {
+    const ctx = makeContext({ user: mockAdmin, isAdmin: true, hasAccess: true });
+    const res = await getAdminComments(ctx);
+    expect(res.status).toBe(200);
+    const body = await res.json() as { comments: unknown[] };
+    expect(Array.isArray(body.comments)).toBe(true);
   });
 });

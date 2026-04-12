@@ -2,6 +2,13 @@ import type { APIRoute } from 'astro';
 import { CommentsService } from '../../../services/comments.service';
 
 export const GET: APIRoute = async ({ locals }) => {
+  if (!locals.user) {
+    return new Response(JSON.stringify({ error: 'Não autenticado' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   if (!locals.isAdmin) {
     return new Response(JSON.stringify({ error: 'Acesso negado' }), {
       status: 403,
