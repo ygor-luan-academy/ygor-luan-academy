@@ -2,7 +2,7 @@
 
 Visao rapida do estado do projeto. Quando voltar de outro projeto, bata o olho aqui.
 
-**Ultima atualizacao**: 2026-04-12
+**Ultima atualizacao**: 2026-04-12 (revisado)
 
 ---
 
@@ -12,7 +12,7 @@ Itens obrigatorios antes do deploy em producao. Nenhum feature nova ate resolver
 
 | # | Item | Status | Notas |
 |---|------|--------|-------|
-| B1 | Rodar migrations no Supabase remoto (`supabase db push`) | A fazer | Inclui 005, 006, 008 |
+| B1 | Rodar migrations no Supabase remoto (`supabase db push`) | A fazer | Inclui 005, 006, 008, 012 |
 | B2 | Configurar `CAKTO_WEBHOOK_SECRET` no Vercel | A fazer | Webhook retorna 401 sem ele |
 | B3 | Configurar `CAL_WEBHOOK_SECRET` no Vercel | A fazer | Necessario para webhook Cal.com |
 | B4 | Configurar webhook no Cal.com apontando para `POST /api/webhook/cal-booking` | A fazer | |
@@ -46,6 +46,8 @@ Features entregues e testadas.
 - [x] Quiz por modulo (QuizService, QuizPlayer, AdminQuizForm, API routes, migration 006)
 - [x] Materiais complementares (MaterialsService, AdminMaterialsManager, API routes, migration 005)
 - [x] Notificacoes por email (EmailService + 4 templates + Cal.com webhook + Edge Function cron)
+- [x] Sistema de avaliacao de aulas (RatingsService, LessonRating island, /admin/avaliacoes, API route)
+- [x] Sistema de certificado (migration 012, CertificateService, /dashboard/certificado, /certificado/verificar/[code], /admin/certificados)
 
 ---
 
@@ -61,11 +63,9 @@ Proximo a implementar, em ordem de prioridade.
 
 | # | Feature | Versao | Complexidade | Descricao |
 |---|---------|--------|--------------|-----------|
-| 1 | Sistema de certificado | V1.1 | Media | Gerar certificado PDF ao concluir 100% do curso |
-| 2 | Sistema de avaliacao de aulas | V1.2 | Media | Rating/review por aula (estrelas + comentario) |
-| 3 | Comunidade (comentarios) | V1.2 | Alta | Comentarios por aula, moderacao admin |
-| 4 | Live classes (streaming) | V1.2 | Alta | Aulas ao vivo com notificacao |
-| 5 | App mobile (React Native) | V1.2 | Muito Alta | App nativo com acesso ao conteudo |
+| 1 | Comunidade (comentarios) | V1.2 | Alta | Comentarios por aula, moderacao admin |
+| 2 | Live classes (streaming) | V1.2 | Alta | Aulas ao vivo com notificacao |
+| 3 | App mobile (React Native) | V1.2 | Muito Alta | App nativo com acesso ao conteudo |
 
 ---
 
