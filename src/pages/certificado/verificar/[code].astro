@@ -1,0 +1,99 @@
+---
+import Header from '../../../components/layout/Header.astro';
+import Footer from '../../../components/layout/Footer.astro';
+import { CertificateService } from '../../../services/certificate.service';
+import { formatDate } from '../../../lib/utils';
+import '../../../styles/global.css';
+
+const { code } = Astro.params;
+
+let certificate: Awaited<ReturnType<typeof CertificateService.getByCode>> = null;
+let loadError = false;
+
+if (code) {
+  try {
+    certificate = await CertificateService.getByCode(code);
+  } catch (err) {
+    console.error('Verificar certificado: erro ao buscar', err);
+    loadError = true;
+  }
+}
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Verificar Certificado – Ygor Luan Academy</title>
+    <meta name="description" content="Verifique a autenticidade de um certificado emitido pela Ygor Luan Academy." />
+    <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <Header />
+
+    <main class="max-w-2xl mx-auto px-6 pt-32 pb-20">
+      <p class="font-sans text-xs uppercase tracking-widest mb-2" style="color: var(--copper);">Verificação de Autenticidade</p>
+      <h1 class="font-display font-light text-4xl mb-10" style="color: var(--cream);">Certificado</h1>
+
+      {loadError && (
+        <p class="font-sans text-sm" style="color: #f87171;">Erro ao verificar o certificado. Tente novamente.</p>
+      )}
+
+      {!loadError && !certificate && (
+        <div style="border: 1px solid var(--blade); padding: 2rem;">
+          <p class="font-sans text-xs uppercase tracking-widest mb-3" style="color: #f87171;">Não encontrado</p>
+          <p class="font-sans text-sm" style="color: var(--fade);">
+            O código <span class="font-mono" style="color: var(--cream);">{code}</span> não corresponde a nenhum certificado emitido por esta plataforma.
+          </p>
+        </div>
+      )}
+
+      {!loadError && certificate && (
+        <div style="border: 1px solid var(--copper); padding: 2.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem;">
+            <span class="font-sans text-xs uppercase tracking-widest" style="color: var(--copper);">Certificado Válido</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="8" cy="8" r="7" stroke="#c57d3d" stroke-width="1.2" fill="none"/>
+              <path d="M4.5 8L7 10.5L11.5 5.5" stroke="#c57d3d" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <div style="border-top: 1px solid var(--blade); margin-bottom: 2rem;" />
+
+          <p class="font-sans text-xs uppercase tracking-widest mb-2" style="color: var(--fade);">Aluno</p>
+          <p class="font-display font-light text-3xl mb-6" style="color: var(--cream);">
+            {certificate.student_name ?? 'Nome não disponível'}
+          </p>
+
+          <p class="font-sans text-xs uppercase tracking-widest mb-2" style="color: var(--fade);">Curso</p>
+          <p class="font-sans text-sm mb-6" style="color: var(--cream);">Mentoria Completa de Barbearia – Ygor Luan Academy</p>
+
+          <div style="border-top: 1px solid var(--blade); margin-bottom: 2rem;" />
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div>
+              <p class="font-sans text-xs uppercase tracking-widest mb-1" style="color: var(--fade);">Data de Conclusão</p>
+              <p class="font-sans text-sm" style="color: var(--cream);">{formatDate(certificate.completed_at)}</p>
+            </div>
+            <div>
+              <p class="font-sans text-xs uppercase tracking-widest mb-1" style="color: var(--fade);">Data de Emissão</p>
+              <p class="font-sans text-sm" style="color: var(--cream);">{formatDate(certificate.issued_at)}</p>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--blade); margin-top: 2rem; padding-top: 1.5rem;">
+            <p class="font-sans text-xs uppercase tracking-widest mb-1" style="color: var(--fade);">Número do Certificado</p>
+            <p class="font-mono text-sm" style="color: var(--copper);">{certificate.certificate_number}</p>
+          </div>
+        </div>
+      )}
+    </main>
+
+    <Footer />
+  </body>
+</html>

@@ -4,6 +4,7 @@ import { CertificateService } from '../../services/certificate.service';
 import { ProgressService } from '../../services/progress.service';
 import { AuthService } from '../../services/auth.service';
 import { formatDate } from '../../lib/utils';
+import type { Certificate } from '../../types';
 
 const { user, hasAccess } = Astro.locals;
 
@@ -13,14 +14,16 @@ let isComplete = false;
 let completionDate: string | null = null;
 let profile: Awaited<ReturnType<typeof AuthService.getProfile>> = null;
 let percentComplete = 0;
+let certificate: Certificate | null = null;
 let loadError = false;
 
 try {
-  const [eligible, date, prof, stats] = await Promise.all([
+  const [eligible, date, prof, stats, cert] = await Promise.all([
     CertificateService.isEligible(user!.id),
     CertificateService.getCompletionDate(user!.id),
     AuthService.getProfile(user!.id),
     ProgressService.getStudentStats(user!.id),
+    CertificateService.getByUserId(user!.id),
   ]);
   isComplete = eligible;
   completionDate = date;
@@ -29,6 +32,12 @@ try {
     stats.total_lessons > 0
       ? Math.round((Number(stats.completed_count) / Number(stats.total_lessons)) * 100)
       : 0;
+
+  if (eligible && !cert && date) {
+    certificate = await CertificateService.issue(user!.id, date);
+  } else {
+    certificate = cert;
+  }
 } catch (err) {
   console.error('Certificado: erro ao carregar dados', err);
   loadError = true;
@@ -79,13 +88,24 @@ const studentName = profile?.full_name ?? user!.email?.split('@')[0] ?? 'Aluno';
 
   {!loadError && isComplete && (
     <>
-      <div class="mb-6 print-hide">
+      <div class="mb-4 print-hide flex flex-wrap gap-6 items-center">
         <button
           class="font-sans text-sm link-btn"
           onclick="window.print()"
         >
           Imprimir / Salvar PDF →
         </button>
+        {certificate && (
+          <a
+            href={`/certificado/verificar/${certificate.certificate_number}`}
+            class="font-sans text-sm"
+            style="color: var(--fade);"
+            target="_blank"
+            rel="noopener"
+          >
+            Verificar autenticidade →
+          </a>
+        )}
       </div>
 
       <div id="certificado-documento" style="border: 1px solid var(--blade); padding: 3rem; max-width: 720px;">
@@ -109,9 +129,16 @@ const studentName = profile?.full_name ?? user!.email?.split('@')[0] ?? 'Aluno';
             {completionDate ? `Concluído em ${formatDate(completionDate)}` : 'Data de conclusão não registrada'}
           </p>
 
-          <div style="border-top: 1px solid var(--blade); padding-top: 1.5rem;">
-            <p class="font-display text-lg font-semibold" style="color: var(--cream);">Ygor Luan</p>
-            <p class="font-sans text-xs uppercase tracking-widest" style="color: var(--fade);">Instrutor</p>
+          <div style="border-top: 1px solid var(--blade); padding-top: 1.5rem; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <p class="font-display text-lg font-semibold" style="color: var(--cream);">Ygor Luan</p>
+              <p class="font-sans text-xs uppercase tracking-widest" style="color: var(--fade);">Instrutor</p>
+            </div>
+            {certificate && (
+              <p class="font-mono text-xs" style="color: var(--fade);">
+                N. {certificate.certificate_number}
+              </p>
+            )}
           </div>
         </div>
       </div>

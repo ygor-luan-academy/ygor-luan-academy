@@ -45,6 +45,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     try {
       const eligible = await CertificateService.isEligible(locals.user.id);
       if (eligible) {
+        const completionDate = await CertificateService.getCompletionDate(locals.user.id);
+        if (completionDate) {
+          await CertificateService.issue(locals.user.id, completionDate);
+        }
         const { data: profile } = await supabaseAdmin
           .from('profiles')
           .select('email, full_name')

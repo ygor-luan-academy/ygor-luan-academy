@@ -231,6 +231,24 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['lesson_ratings']['Insert']>;
         Relationships: [];
       };
+      certificates: {
+        Row: {
+          id: string;
+          user_id: string;
+          certificate_number: string;
+          issued_at: string;
+          completed_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          certificate_number?: string;
+          issued_at?: string;
+          completed_at: string;
+        };
+        Update: Partial<Database['public']['Tables']['certificates']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

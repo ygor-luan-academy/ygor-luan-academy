@@ -45,6 +45,8 @@ export type ModuleWithQuiz = Module & {
 export type LessonRating = Database['public']['Tables']['lesson_ratings']['Row'];
 export type LessonRatingInsert = Database['public']['Tables']['lesson_ratings']['Insert'];
 
+export type Certificate = Database['public']['Tables']['certificates']['Row'];
+
 export interface PricingProduct {
   checkoutUrl: string;
   eyebrow: string;
