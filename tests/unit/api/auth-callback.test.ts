@@ -37,7 +37,7 @@ describe('GET /auth/callback', () => {
     mockExchangeCodeForSession.mockResolvedValueOnce({ error: null });
     const res = await GET(makeCtx({ code: 'abc123', next: '/redefinir-senha' }));
     expect(res.status).toBe(302);
-    expect(res.headers.get('location')).toBe('/redefinir-senha');
+    expect(res.headers.get('location')).toBe('/redefinir-senha?recovery=1');
   });
 
   it('redireciona para /dashboard quando next está ausente e troca tem sucesso', async () => {

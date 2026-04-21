@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { makeCaktoPayload, CAKTO_TEST_SECRET } from '../../fixtures/webhooks';
+import { resetRateLimitStore } from '../../../src/lib/rate-limit';
 
 vi.mock('../../../src/lib/supabase-admin', () => ({
   supabaseAdmin: {
@@ -21,10 +22,13 @@ vi.mock('../../../src/lib/resend', () => ({
 import { POST } from '../../../src/pages/api/webhook/cakto';
 import { supabaseAdmin } from '../../../src/lib/supabase-admin';
 
-function buildRequest(body: unknown): Request {
+function buildRequest(body: unknown, ip = '198.51.100.10'): Request {
   return new Request('http://localhost/api/webhook/cakto', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-forwarded-for': ip,
+    },
     body: JSON.stringify(body),
   });
 }
@@ -32,6 +36,7 @@ function buildRequest(body: unknown): Request {
 beforeEach(() => {
   vi.clearAllMocks();
   vi.unstubAllEnvs();
+  resetRateLimitStore();
   vi.stubEnv('CAKTO_WEBHOOK_SECRET', CAKTO_TEST_SECRET);
 });
 
@@ -42,6 +47,30 @@ describe('POST /api/webhook/cakto', () => {
         request: buildRequest({ event: 'purchase_approved' }),
       } as never);
       expect(res.status).toBe(400);
+    });
+
+    it('retorna 429 após muitas tentativas do mesmo IP', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: { id: 'existing-order' }, error: null }),
+          }),
+        }),
+      } as never);
+
+      for (let attempt = 0; attempt < 30; attempt += 1) {
+        const res = await POST({
+          request: buildRequest(makeCaktoPayload(), '198.51.100.20'),
+        } as never);
+        expect(res.status).toBe(200);
+      }
+
+      const blockedResponse = await POST({
+        request: buildRequest(makeCaktoPayload(), '198.51.100.20'),
+      } as never);
+
+      expect(blockedResponse.status).toBe(429);
+      expect(blockedResponse.headers.get('retry-after')).toBeTruthy();
     });
   });
 

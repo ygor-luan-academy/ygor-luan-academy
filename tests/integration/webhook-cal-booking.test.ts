@@ -1,5 +1,6 @@
 import { createHmac } from 'crypto';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { resetRateLimitStore } from '../../src/lib/rate-limit';
 import { supabaseAdmin } from '../../src/lib/supabase-admin';
 import { POST } from '../../src/pages/api/webhook/cal-booking';
 import { CAL_BOOKING_CREATED_PAYLOAD } from '../fixtures/webhooks';
@@ -8,16 +9,16 @@ function signBody(body: string, secret: string): string {
   return createHmac('sha256', secret).update(body).digest('hex');
 }
 
-function makeRequest(body: unknown, headers: Record<string, string> = {}): Request {
+function makeRequest(body: unknown, headers: Record<string, string> = {}, ip = '198.51.100.30'): Request {
   return new Request('http://localhost/api/webhook/cal-booking', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...headers },
+    headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip, ...headers },
     body: JSON.stringify(body),
   });
 }
 
-function makeCtx(body: unknown, headers: Record<string, string> = {}) {
-  return { request: makeRequest(body, headers) } as Parameters<typeof POST>[0];
+function makeCtx(body: unknown, headers: Record<string, string> = {}, ip = '198.51.100.30') {
+  return { request: makeRequest(body, headers, ip) } as Parameters<typeof POST>[0];
 }
 
 const TEST_SECRET = 'test-secret';
@@ -25,6 +26,7 @@ const TEST_SECRET = 'test-secret';
 beforeEach(() => {
   vi.clearAllMocks();
   vi.unstubAllEnvs();
+  resetRateLimitStore();
 });
 
 describe('POST /api/webhook/cal-booking', () => {
@@ -131,6 +133,33 @@ describe('POST /api/webhook/cal-booking', () => {
           status: 'scheduled',
         }),
       );
+    });
+  });
+
+  describe('rate limit', () => {
+    it('retorna 429 após muitas tentativas do mesmo IP', async () => {
+      vi.stubEnv('CAL_WEBHOOK_SECRET', TEST_SECRET);
+
+      const body = JSON.stringify({ triggerEvent: 'BOOKING_CANCELLED', payload: {} });
+      const signature = signBody(body, TEST_SECRET);
+
+      for (let attempt = 0; attempt < 30; attempt += 1) {
+        const res = await POST(makeCtx(
+          { triggerEvent: 'BOOKING_CANCELLED', payload: {} },
+          { 'X-Cal-Signature-256': signature },
+          '198.51.100.31',
+        ));
+        expect(res.status).toBe(200);
+      }
+
+      const blockedResponse = await POST(makeCtx(
+        { triggerEvent: 'BOOKING_CANCELLED', payload: {} },
+        { 'X-Cal-Signature-256': signature },
+        '198.51.100.31',
+      ));
+
+      expect(blockedResponse.status).toBe(429);
+      expect(blockedResponse.headers.get('retry-after')).toBeTruthy();
     });
   });
 

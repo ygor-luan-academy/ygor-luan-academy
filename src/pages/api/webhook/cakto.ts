@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 import type { APIRoute } from 'astro';
+import { consumeRateLimit, getClientIp } from '../../../lib/rate-limit';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { EmailService } from '../../../services/email.service';
 import type { CaktoWebhookPayload } from '../../../types/cakto.types';
@@ -76,6 +77,22 @@ function isCaktoWebhookPayload(value: unknown): value is CaktoWebhookPayload {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const rateLimit = consumeRateLimit({
+    bucket: 'webhook-cakto',
+    identifier: getClientIp(request.headers),
+    limit: 30,
+    windowMs: 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return new Response('Too Many Requests', {
+      status: 429,
+      headers: {
+        'Retry-After': String(rateLimit.retryAfterSeconds),
+      },
+    });
+  }
+
   const payload = await request.json().catch(() => null);
 
   if (!isCaktoWebhookPayload(payload)) {

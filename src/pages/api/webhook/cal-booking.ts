@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createHmac, timingSafeEqual } from 'crypto';
+import { consumeRateLimit, getClientIp } from '../../../lib/rate-limit';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 
 interface CalBookingPayload {
@@ -22,6 +23,22 @@ function verifyCalSignature(body: string, signature: string, secret: string): bo
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const rateLimit = consumeRateLimit({
+    bucket: 'webhook-cal-booking',
+    identifier: getClientIp(request.headers),
+    limit: 30,
+    windowMs: 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return new Response('Too Many Requests', {
+      status: 429,
+      headers: {
+        'Retry-After': String(rateLimit.retryAfterSeconds),
+      },
+    });
+  }
+
   const rawBody = await request.text();
 
   const signature = request.headers.get('X-Cal-Signature-256') ?? '';

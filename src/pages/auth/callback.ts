@@ -1,5 +1,6 @@
 import { createServerClient, parseCookieHeader, type CookieOptions } from '@supabase/ssr';
 import type { APIRoute } from 'astro';
+import { resolveCallbackRedirect } from '../../lib/auth-navigation';
 
 export const GET: APIRoute = async ({ url, request, cookies, redirect }) => {
   const code = url.searchParams.get('code');
@@ -27,5 +28,5 @@ export const GET: APIRoute = async ({ url, request, cookies, redirect }) => {
 
   if (error) return redirect('/login');
 
-  return redirect(next);
+  return redirect(resolveCallbackRedirect(next));
 };
