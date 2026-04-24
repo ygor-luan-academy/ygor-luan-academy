@@ -19,8 +19,15 @@ vi.mock('../../../src/lib/resend', () => ({
   FROM_EMAIL: 'noreply@ygorluanacademy.com.br',
 }));
 
+vi.mock('../../../src/services/orders.service', () => ({
+  OrdersService: {
+    updateStatus: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 import { POST } from '../../../src/pages/api/webhook/cakto';
 import { supabaseAdmin } from '../../../src/lib/supabase-admin';
+import { OrdersService } from '../../../src/services/orders.service';
 
 function buildRequest(body: unknown, ip = '198.51.100.10'): Request {
   return new Request('http://localhost/api/webhook/cakto', {
@@ -104,13 +111,36 @@ describe('POST /api/webhook/cakto', () => {
       expect(res.status).toBe(200);
       expect(supabaseAdmin.auth.admin.createUser).not.toHaveBeenCalled();
     });
+  });
 
-    it('retorna 200 sem ação para refund', async () => {
-      const res = await POST({
-        request: buildRequest(makeCaktoPayload(CAKTO_TEST_SECRET, { event: 'refund' })),
-      } as never);
+  describe('eventos de refund e chargeback', () => {
+    it('retorna 200 e atualiza order para refunded no evento refund', async () => {
+      const payload = makeCaktoPayload(CAKTO_TEST_SECRET, { event: 'refund' });
+      const res = await POST({ request: buildRequest(payload) } as never);
       expect(res.status).toBe(200);
       expect(supabaseAdmin.auth.admin.createUser).not.toHaveBeenCalled();
+      expect(OrdersService.updateStatus).toHaveBeenCalledWith(payload.data.id, 'refunded');
+    });
+
+    it('retorna 200 e atualiza order para refunded no evento chargeback', async () => {
+      const payload = makeCaktoPayload(CAKTO_TEST_SECRET, { event: 'chargeback' });
+      const res = await POST({ request: buildRequest(payload) } as never);
+      expect(res.status).toBe(200);
+      expect(OrdersService.updateStatus).toHaveBeenCalledWith(payload.data.id, 'refunded');
+    });
+
+    it('retorna 200 e atualiza order para refunded no evento purchase_refunded', async () => {
+      const payload = makeCaktoPayload(CAKTO_TEST_SECRET, { event: 'purchase_refunded' });
+      const res = await POST({ request: buildRequest(payload) } as never);
+      expect(res.status).toBe(200);
+      expect(OrdersService.updateStatus).toHaveBeenCalledWith(payload.data.id, 'refunded');
+    });
+
+    it('retorna 200 mesmo se updateStatus falhar (fire-and-forget resiliente)', async () => {
+      vi.mocked(OrdersService.updateStatus).mockRejectedValueOnce(new Error('DB error'));
+      const payload = makeCaktoPayload(CAKTO_TEST_SECRET, { event: 'refund' });
+      const res = await POST({ request: buildRequest(payload) } as never);
+      expect(res.status).toBe(200);
     });
   });
 

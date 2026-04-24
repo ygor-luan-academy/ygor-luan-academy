@@ -159,6 +159,32 @@ describe('OrdersService', () => {
     });
   });
 
+  describe('updateStatus', () => {
+    it('atualiza status do pedido por payment_id', async () => {
+      const mockUpdate = vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ error: null }),
+      });
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        update: mockUpdate,
+      } as never);
+
+      await OrdersService.updateStatus('pay-001', 'refunded');
+
+      expect(supabaseAdmin.from).toHaveBeenCalledWith('orders');
+      expect(mockUpdate).toHaveBeenCalledWith({ status: 'refunded' });
+    });
+
+    it('lança erro quando Supabase retorna erro', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        update: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ error: { message: 'update failed' } }),
+        }),
+      } as never);
+
+      await expect(OrdersService.updateStatus('pay-001', 'refunded')).rejects.toThrow('update failed');
+    });
+  });
+
   describe('create', () => {
     it('cria pedido via admin client e retorna o pedido criado', async () => {
       vi.mocked(supabaseAdmin.from).mockReturnValueOnce({

@@ -3,7 +3,10 @@ import type { APIRoute } from 'astro';
 import { consumeRateLimit, getClientIp } from '../../../lib/rate-limit';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { EmailService } from '../../../services/email.service';
+import { OrdersService } from '../../../services/orders.service';
 import type { CaktoWebhookPayload } from '../../../types/cakto.types';
+
+const REFUND_EVENTS = new Set(['refund', 'chargeback', 'purchase_refunded']);
 
 type AllowedTargets = {
   productIds: Set<string>;
@@ -108,6 +111,13 @@ export const POST: APIRoute = async ({ request }) => {
   }
   if (!verifyCaktoSecret(body.secret, secret)) {
     return new Response('Unauthorized', { status: 401 });
+  }
+
+  if (REFUND_EVENTS.has(body.event)) {
+    void OrdersService.updateStatus(body.data.id, 'refunded').catch((err: unknown) => {
+      console.error('Webhook Cakto: erro ao revogar acesso por refund', err);
+    });
+    return new Response('OK', { status: 200 });
   }
 
   if (body.event !== 'purchase_approved') {

@@ -55,6 +55,18 @@ export class OrdersService {
     return (data ?? []).reduce((sum, o) => sum + o.amount, 0);
   }
 
+  static async updateStatus(
+    paymentId: string,
+    status: Order['status'],
+  ): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from('orders')
+      .update({ status })
+      .eq('payment_id', paymentId);
+
+    if (error) throw new Error(error.message);
+  }
+
   static async create(
     input: Omit<Order, 'id' | 'created_at'>,
   ): Promise<Order> {
