@@ -23,7 +23,7 @@ function verifyCalSignature(body: string, signature: string, secret: string): bo
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const rateLimit = consumeRateLimit({
+  const rateLimit = await consumeRateLimit({
     bucket: 'webhook-cal-booking',
     identifier: getClientIp(request.headers),
     limit: 30,

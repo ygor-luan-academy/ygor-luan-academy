@@ -3,7 +3,7 @@ import { consumeRateLimit, getClientIp } from '../../../lib/rate-limit';
 import { AuthService } from '../../../services/auth.service';
 
 export const POST: APIRoute = async ({ request }) => {
-  const rateLimit = consumeRateLimit({
+  const rateLimit = await consumeRateLimit({
     bucket: 'auth-reset-password',
     identifier: getClientIp(request.headers),
     limit: 3,

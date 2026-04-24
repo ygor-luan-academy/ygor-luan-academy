@@ -80,7 +80,7 @@ function isCaktoWebhookPayload(value: unknown): value is CaktoWebhookPayload {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const rateLimit = consumeRateLimit({
+  const rateLimit = await consumeRateLimit({
     bucket: 'webhook-cakto',
     identifier: getClientIp(request.headers),
     limit: 30,

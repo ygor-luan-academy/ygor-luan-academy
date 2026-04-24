@@ -24,6 +24,8 @@ interface ImportMetaEnv {
   readonly RESEND_FROM_EMAIL: string;
   readonly PUBLIC_SITE_URL: string;
   readonly PUBLIC_CALCOM_LINK?: string;
+  readonly UPSTASH_REDIS_REST_URL?: string;
+  readonly UPSTASH_REDIS_REST_TOKEN?: string;
 }
 
 interface ImportMeta {

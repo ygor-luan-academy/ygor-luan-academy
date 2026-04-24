@@ -5,7 +5,7 @@ import { consumeRateLimit, getClientIp } from '../../../lib/rate-limit';
 import type { Database } from '../../../types/database.types';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const rateLimit = consumeRateLimit({
+  const rateLimit = await consumeRateLimit({
     bucket: 'auth-login',
     identifier: getClientIp(request.headers),
     limit: 5,
