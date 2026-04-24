@@ -19,6 +19,17 @@ describe('security headers', () => {
     expect(headers['Strict-Transport-Security']).toContain('max-age=31536000');
   });
 
+  it('inclui Content-Security-Policy-Report-Only com diretivas corretas', () => {
+    const headers = getSecurityHeaders(new URL('https://ygorluanpro.com.br/'));
+
+    const csp = headers['Content-Security-Policy-Report-Only'];
+    expect(csp).toBeDefined();
+    expect(csp).toContain("default-src 'self'");
+    expect(csp).toContain('https://player.vimeo.com');
+    expect(csp).toContain('https://*.supabase.co');
+    expect(csp).toContain('report-uri /api/csp-report');
+  });
+
   it('preserva headers existentes ao aplicar headers de segurança', async () => {
     const original = new Response(JSON.stringify({ ok: true }), {
       status: 201,
