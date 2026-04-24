@@ -111,6 +111,19 @@ export class QuizService {
     if (error) throw new Error(error.message);
   }
 
+  static async getCountsPerModule(): Promise<Map<number, number>> {
+    const { data, error } = await supabaseAdmin
+      .from('quiz_questions')
+      .select('module_number');
+    if (error) throw new Error(error.message);
+    const counts = new Map<number, number>();
+    for (const row of data ?? []) {
+      const n = row.module_number as number;
+      counts.set(n, (counts.get(n) ?? 0) + 1);
+    }
+    return counts;
+  }
+
   static async getAttemptCount(userId: string, moduleNumber: number): Promise<number> {
     const { count, error } = await supabaseAdmin
       .from('quiz_attempts')

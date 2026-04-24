@@ -320,6 +320,41 @@ describe('QuizService', () => {
     });
   });
 
+  describe('getCountsPerModule', () => {
+    it('retorna Map com contagem de questões por módulo', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockResolvedValue({
+          data: [
+            { module_number: 1 },
+            { module_number: 1 },
+            { module_number: 2 },
+          ],
+          error: null,
+        }),
+      } as never);
+      const counts = await QuizService.getCountsPerModule();
+      expect(counts).toBeInstanceOf(Map);
+      expect(counts.get(1)).toBe(2);
+      expect(counts.get(2)).toBe(1);
+      expect(supabaseAdmin.from).toHaveBeenCalledWith('quiz_questions');
+    });
+
+    it('retorna Map vazio quando não há questões', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockResolvedValue({ data: null, error: null }),
+      } as never);
+      const counts = await QuizService.getCountsPerModule();
+      expect(counts.size).toBe(0);
+    });
+
+    it('lança erro quando Supabase retorna erro', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockResolvedValue({ data: null, error: { message: 'DB error' } }),
+      } as never);
+      await expect(QuizService.getCountsPerModule()).rejects.toThrow('DB error');
+    });
+  });
+
   describe('getAttemptCount', () => {
     it('retorna a contagem de tentativas do usuário no módulo', async () => {
       vi.mocked(supabaseAdmin.from).mockReturnValueOnce({

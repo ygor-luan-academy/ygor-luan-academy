@@ -4,15 +4,10 @@ import { LessonsService } from '../../../services/lessons.service';
 import { QuizService } from '../../../services/quiz.service';
 
 const { user } = Astro.locals;
-const modules = await LessonsService.getAllModules();
-
-const quizCounts = await Promise.all(
-  modules.map(async (m) => {
-    const questions = await QuizService.getQuestionsByModule(m.order_number).catch(() => []);
-    return { moduleNumber: m.order_number, count: questions.length };
-  }),
-);
-const countMap = new Map(quizCounts.map(({ moduleNumber, count }) => [moduleNumber, count]));
+const [modules, countMap] = await Promise.all([
+  LessonsService.getAllModules(),
+  QuizService.getCountsPerModule(),
+]);
 ---
 
 <DashboardLayout title="Quizzes" user={user!} isAdmin={true}>
