@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
+import { logger } from '../../lib/logger';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json() as unknown;
-    console.error('[csp-report]', JSON.stringify(body));
+    const body = await request.json() as Record<string, unknown>;
+    logger.error('csp.violation', body);
   } catch {
     // malformed body — ignore
   }

@@ -22,7 +22,7 @@ test.describe('Login — proteção e erros', () => {
   });
 
   test('rate limit: 6 tentativas seguidas retornam 429', async ({ request }) => {
-    const payload = { email: 'brute@example.com', password: 'senhaerrada' };
+    const payload = { email: `brute-${crypto.randomUUID()}@example.com`, password: 'senhaerrada' };
     const headers = { 'Content-Type': 'application/json', Origin: E2E_ORIGIN };
     let lastStatus = 0;
     for (let i = 0; i < 6; i++) {
