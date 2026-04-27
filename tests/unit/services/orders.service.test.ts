@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OrdersService } from '../../../src/services/orders.service';
 import { supabaseAdmin } from '../../../src/lib/supabase-admin';
+import { logger } from '../../../src/lib/logger';
+
+vi.mock('../../../src/lib/logger', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
 
 const mockOrder = {
   id: 'order-1',
@@ -93,6 +98,41 @@ describe('OrdersService', () => {
 
       const hasAccess = await OrdersService.hasActiveAccess('user-sem-acesso');
       expect(hasAccess).toBe(false);
+    });
+
+    it('retorna false e LOGA quando Supabase retorna erro', async () => {
+      vi.mocked(supabaseAdmin.from).mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              limit: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockResolvedValue({
+                  data: null,
+                  error: { code: 'XX000', message: 'connection lost' },
+                }),
+              }),
+            }),
+          }),
+        }),
+      } as never);
+
+      expect(await OrdersService.hasActiveAccess('user-1')).toBe(false);
+      expect(logger.error).toHaveBeenCalledWith(
+        'orders.hasActiveAccess failed',
+        expect.objectContaining({ userId: 'user-1', code: 'XX000' }),
+      );
+    });
+
+    it('retorna false e LOGA quando query lança exceção', async () => {
+      vi.mocked(supabaseAdmin.from).mockImplementationOnce(() => {
+        throw new Error('boom');
+      });
+
+      expect(await OrdersService.hasActiveAccess('user-1')).toBe(false);
+      expect(logger.error).toHaveBeenCalledWith(
+        'orders.hasActiveAccess threw',
+        expect.objectContaining({ userId: 'user-1' }),
+      );
     });
   });
 

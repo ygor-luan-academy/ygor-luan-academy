@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../lib/supabase-admin';
+import { logger } from '../lib/logger';
 import type { Profile } from '../types';
 
 export class UsersService {
@@ -23,11 +24,20 @@ export class UsersService {
   }
 
   static async isAdmin(userId: string): Promise<boolean> {
-    const { data } = await supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .single();
-    return data?.role === 'admin';
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      if (error && error.code !== 'PGRST116') {
+        logger.error('users.isAdmin failed', { userId, code: error.code, message: error.message });
+        return false;
+      }
+      return data?.role === 'admin';
+    } catch (err) {
+      logger.error('users.isAdmin threw', { userId, err: err instanceof Error ? err.message : String(err) });
+      return false;
+    }
   }
 }

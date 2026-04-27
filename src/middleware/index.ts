@@ -70,7 +70,8 @@ export const onRequest = defineMiddleware(async (
         headers: { 'Content-Type': 'application/json' },
       }));
     }
-    return respond(redirect('/login'));
+    const nextTarget = encodeURIComponent(pathname + url.search);
+    return respond(redirect(`/login?next=${nextTarget}`));
   }
 
   const [isAdmin, hasAccess] = await Promise.all([

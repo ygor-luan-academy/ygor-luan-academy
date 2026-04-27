@@ -1,9 +1,13 @@
 ---
 import LoginForm from '../islands/LoginForm';
+import { isSafeRedirectTarget } from '../lib/safe-redirect';
 import '../styles/global.css';
 
 const { user } = Astro.locals;
-if (user) return Astro.redirect('/dashboard');
+const nextRaw = Astro.url.searchParams.get('next');
+const safeNext = isSafeRedirectTarget(nextRaw) ? nextRaw : '/dashboard';
+
+if (user) return Astro.redirect(safeNext);
 ---
 
 <!doctype html>
@@ -50,7 +54,7 @@ if (user) return Astro.redirect('/dashboard');
         <p class="font-sans text-sm mb-8" style="color: var(--fade);">Acesse sua área de aluno</p>
 
         <div style="background-color: var(--mahogany); border: 1px solid var(--ink); padding: 2rem;">
-          <LoginForm client:load />
+          <LoginForm client:load next={safeNext} />
         </div>
 
         <p class="text-center font-sans text-sm mt-6" style="color: var(--fade);">

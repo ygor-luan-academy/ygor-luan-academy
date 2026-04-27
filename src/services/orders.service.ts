@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../lib/supabase-admin';
+import { logger } from '../lib/logger';
 import type { Order } from '../types';
 
 export class OrdersService {
@@ -14,15 +15,24 @@ export class OrdersService {
   }
 
   static async hasActiveAccess(userId: string): Promise<boolean> {
-    const { data } = await supabaseAdmin
-      .from('orders')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('status', 'approved')
-      .limit(1)
-      .maybeSingle();
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('orders')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('status', 'approved')
+        .limit(1)
+        .maybeSingle();
 
-    return !!data;
+      if (error) {
+        logger.error('orders.hasActiveAccess failed', { userId, code: error.code, message: error.message });
+        return false;
+      }
+      return !!data;
+    } catch (err) {
+      logger.error('orders.hasActiveAccess threw', { userId, err: err instanceof Error ? err.message : String(err) });
+      return false;
+    }
   }
 
   static async getByPaymentId(paymentId: string): Promise<Order | null> {

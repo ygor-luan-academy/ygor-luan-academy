@@ -1,6 +1,11 @@
 import { useState } from 'react';
+import { isSafeRedirectTarget } from '../lib/safe-redirect';
 
-export default function LoginForm() {
+interface LoginFormProps {
+  next?: string;
+}
+
+export default function LoginForm({ next = '/dashboard' }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +31,8 @@ export default function LoginForm() {
         throw new Error(data.error ?? 'Credenciais inválidas');
       }
 
-      window.location.href = '/dashboard';
+      const target = isSafeRedirectTarget(next) ? next : '/dashboard';
+      window.location.href = target;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao fazer login');
       setLoading(false);

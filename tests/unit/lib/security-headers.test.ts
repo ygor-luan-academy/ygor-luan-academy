@@ -46,4 +46,53 @@ describe('security headers', () => {
     expect(secured.headers.get('Cache-Control')).toBe('no-store');
     expect(secured.headers.get('X-Frame-Options')).toBe('DENY');
   });
+
+  describe('Cache-Control / Vary em rotas privadas', () => {
+    it('seta Cache-Control: private, no-store em /dashboard/*', () => {
+      const headers = getSecurityHeaders(new URL('https://ygorluanpro.com.br/dashboard/aulas'));
+
+      expect(headers['Cache-Control']).toBe('private, no-store, max-age=0');
+      expect(headers['Vary']).toBe('Cookie');
+    });
+
+    it('seta Cache-Control private em /admin/*', () => {
+      const headers = getSecurityHeaders(new URL('https://ygorluanpro.com.br/admin'));
+
+      expect(headers['Cache-Control']).toBe('private, no-store, max-age=0');
+      expect(headers['Vary']).toBe('Cookie');
+    });
+
+    it('seta Cache-Control private em /api/*', () => {
+      const headers = getSecurityHeaders(new URL('https://ygorluanpro.com.br/api/progress/complete'));
+
+      expect(headers['Cache-Control']).toBe('private, no-store, max-age=0');
+      expect(headers['Vary']).toBe('Cookie');
+    });
+
+    it('NÃO seta Cache-Control em rotas públicas (/, /termos, /login)', () => {
+      expect(getSecurityHeaders(new URL('https://ygorluanpro.com.br/'))['Cache-Control']).toBeUndefined();
+      expect(getSecurityHeaders(new URL('https://ygorluanpro.com.br/termos'))['Cache-Control']).toBeUndefined();
+      expect(getSecurityHeaders(new URL('https://ygorluanpro.com.br/login'))['Cache-Control']).toBeUndefined();
+    });
+
+    it('applySecurityHeaders preserva Cache-Control já setado pela rota (não sobrescreve)', () => {
+      const original = new Response(null, {
+        status: 200,
+        headers: { 'Cache-Control': 'public, max-age=60' },
+      });
+
+      const secured = applySecurityHeaders(original, new URL('https://ygorluanpro.com.br/dashboard'));
+
+      expect(secured.headers.get('Cache-Control')).toBe('public, max-age=60');
+    });
+
+    it('applySecurityHeaders adiciona Cache-Control private em /dashboard quando ausente', () => {
+      const original = new Response(null, { status: 200 });
+
+      const secured = applySecurityHeaders(original, new URL('https://ygorluanpro.com.br/dashboard'));
+
+      expect(secured.headers.get('Cache-Control')).toBe('private, no-store, max-age=0');
+      expect(secured.headers.get('Vary')).toBe('Cookie');
+    });
+  });
 });

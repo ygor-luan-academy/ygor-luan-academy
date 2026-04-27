@@ -136,11 +136,17 @@ describe('middleware — rotas protegidas (sem auth)', () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
   });
 
-  it('redireciona /dashboard para /login quando não autenticado', async () => {
+  it('redireciona /dashboard para /login com ?next= preservando rota original', async () => {
     const ctx = makeCtx('/dashboard');
     const res = await (onRequest as Function)(ctx, next);
-    expect(res.headers.get('Location')).toBe('/login');
+    expect(res.headers.get('Location')).toBe('/login?next=%2Fdashboard');
     expect(next).not.toHaveBeenCalled();
+  });
+
+  it('redireciona /dashboard/aula/abc para /login?next=%2Fdashboard%2Faula%2Fabc', async () => {
+    const ctx = makeCtx('/dashboard/aula/abc');
+    const res = await (onRequest as Function)(ctx, next);
+    expect(res.headers.get('Location')).toBe('/login?next=%2Fdashboard%2Faula%2Fabc');
   });
 
   it('retorna 401 em API protegida quando não autenticado', async () => {
