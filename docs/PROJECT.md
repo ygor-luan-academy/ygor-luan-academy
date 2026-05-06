@@ -1,4 +1,4 @@
-# Ygor Luan Pro - Plataforma de Mentoria para Barbeiros
+# Ygor Luan Academy - Plataforma de Mentoria para Barbeiros
 
 ## Visao Geral
 

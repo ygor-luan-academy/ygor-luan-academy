@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Plataforma de mentoria para barbeiros (Ygor Luan Pro). Astro 5 + React 19 + Supabase + Cakto.
+Plataforma de mentoria para barbeiros (Ygor Luan Academy). Astro 5 + React 19 + Supabase + Cakto.
 
 ## Comandos
 

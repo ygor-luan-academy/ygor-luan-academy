@@ -1,4 +1,4 @@
-# Design Brief — Ygor Luan Pro
+# Design Brief — Ygor Luan Academy
 
 **Versão**: 1.0.0 | **Última atualização**: 2026-03-10
 
@@ -8,7 +8,7 @@
 
 | Atributo     | Valor                                         |
 |--------------|-----------------------------------------------|
-| Nome         | Ygor Luan Pro                                 |
+| Nome         | Ygor Luan Academy                                 |
 | Estética     | Barbearia premium / luxo                      |
 | Tons         | Escuros quentes, cobre, creme                 |
 | Vibe         | Masculinidade refinada, tipografia-driven     |

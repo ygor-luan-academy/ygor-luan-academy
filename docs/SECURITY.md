@@ -1,4 +1,4 @@
-# Segurança — Ygor Luan Pro
+# Segurança — Ygor Luan Academy
 
 ## Publicacao e Repositorio
 

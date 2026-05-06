@@ -79,7 +79,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Fluxo de Compra', () => {
   test('deve completar compra com sucesso', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('h1')).toContainText('Ygor Luan Pro');
+    await expect(page.locator('h1')).toContainText('Ygor Luan Academy');
 
     await page.click('button:has-text("Comprar Agora")');
     await expect(page).toHaveURL(/cakto/);

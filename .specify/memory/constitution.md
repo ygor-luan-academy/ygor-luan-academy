@@ -5,7 +5,7 @@ Templates requiring updates: ✅ constitution.md written from scratch
 Follow-up TODOs: none
 -->
 
-# Ygor Luan Pro Constitution
+# Ygor Luan Academy Constitution
 
 ## Core Principles
 
