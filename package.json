@@ -23,7 +23,8 @@
     "quality-gate:update": "pnpm test:unit --coverage && node scripts/quality-gate.js update"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm type-check"
+    "pre-commit": "node scripts/check-branch.js && node scripts/check-test-only.js && pnpm type-check && pnpm test:unit --run",
+    "pre-push": "pnpm test:unit --coverage && node scripts/quality-gate.js check"
   },
   "dependencies": {
     "@astrojs/node": "10.0.6",
