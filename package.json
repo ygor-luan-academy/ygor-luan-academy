@@ -20,11 +20,17 @@
     "prepare": "simple-git-hooks",
     "quality-gate:init": "pnpm test:unit --coverage && node scripts/quality-gate.js init",
     "quality-gate:check": "node scripts/quality-gate.js check",
-    "quality-gate:update": "pnpm test:unit --coverage && node scripts/quality-gate.js update"
+    "quality-gate:update": "pnpm test:unit --coverage && node scripts/quality-gate.js update",
+    "pr-check": "pnpm type-check && pnpm audit --audit-level=critical && pnpm test:unit --coverage && pnpm test:integration && node scripts/quality-gate.js check && pnpm build"
   },
   "simple-git-hooks": {
     "pre-commit": "node scripts/check-branch.js && node scripts/check-test-only.js && pnpm type-check && pnpm test:unit --run",
-    "pre-push": "pnpm test:unit --coverage && node scripts/quality-gate.js check"
+    "pre-push": "pnpm pr-check"
+  },
+  "pnpm": {
+    "overrides": {
+      "undici": "^7.21.0"
+    }
   },
   "dependencies": {
     "@astrojs/node": "10.0.6",
