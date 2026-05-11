@@ -84,6 +84,16 @@ jobs:
       - name: Security audit — high (avisa)
         run: pnpm audit --audit-level=high || true
 
+      - name: SAST — Semgrep (OWASP)
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/owasp-top-ten
+            p/typescript
+          generateSarif: false
+        env:
+          SEMGREP_RULES: p/owasp-top-ten p/typescript
+
       - name: Download coverage artifact
         uses: actions/download-artifact@v4
         with:
