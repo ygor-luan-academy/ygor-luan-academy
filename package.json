@@ -11,7 +11,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "type-check": "astro check",
-    "lint": "astro check",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --fix src/",
+    "format": "biome format --write src/",
     "test": "vitest",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
@@ -20,21 +22,23 @@
     "prepare": "simple-git-hooks",
     "quality-gate:init": "pnpm test:unit --coverage && node scripts/quality-gate.js init",
     "quality-gate:check": "node scripts/quality-gate.js check",
-    "quality-gate:update": "pnpm test:unit --coverage && node scripts/quality-gate.js update"
+    "quality-gate:update": "pnpm test:unit --coverage && node scripts/quality-gate.js update",
+    "pr-check": "pnpm type-check && pnpm lint && pnpm audit --audit-level=critical && pnpm test:unit && pnpm test:integration && node scripts/quality-gate.js check && pnpm build"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm type-check"
+    "pre-commit": "node scripts/check-branch.js && node scripts/check-test-only.js && pnpm type-check && pnpm vitest run tests/unit --changed HEAD --passWithNoTests",
+    "pre-push": "pnpm type-check && pnpm lint && pnpm test:unit"
   },
   "dependencies": {
-    "@astrojs/node": "10.0.6",
+    "@astrojs/node": "10.1.0",
     "@astrojs/react": "^5.0.4",
     "@astrojs/sitemap": "^3.7.1",
-    "@astrojs/tailwind": "^5.1.4",
+    "@astrojs/tailwind": "^6.0.2",
     "@astrojs/vercel": "10.0.6",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.98.0",
     "@vimeo/player": "^2.30.3",
-    "astro": "6.2.2",
+    "astro": "6.3.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "resend": "^4.5.1",
@@ -42,6 +46,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@biomejs/biome": "2.4.15",
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -50,7 +55,7 @@
     "@vitest/coverage-v8": "^4.0.18",
     "autoprefixer": "^10.4.21",
     "dotenv": "^17.3.1",
-    "jsdom": "^28.1.0",
+    "jsdom": "^29.1.1",
     "simple-git-hooks": "^2.13.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
