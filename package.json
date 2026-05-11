@@ -29,22 +29,6 @@
     "pre-commit": "node scripts/check-branch.js && node scripts/check-test-only.js && pnpm type-check && pnpm vitest run tests/unit --changed HEAD --passWithNoTests",
     "pre-push": "pnpm type-check && pnpm lint && pnpm test:unit"
   },
-  "pnpm": {
-    "overrides": {
-      "undici": "^7.24.0",
-      "h3": ">=1.15.9",
-      "svgo": ">=4.0.1",
-      "tar": ">=7.5.11",
-      "picomatch": ">=4.0.4",
-      "defu": ">=6.1.5",
-      "fast-uri": ">=3.1.2",
-      "postcss": ">=8.5.10",
-      "smol-toml": ">=1.6.1",
-      "devalue": ">=5.6.4",
-      "brace-expansion": ">=2.0.3",
-      "yaml": ">=2.8.3"
-    }
-  },
   "dependencies": {
     "@astrojs/node": "10.1.0",
     "@astrojs/react": "^5.0.4",
