@@ -6,7 +6,13 @@ const TEST_DIRS = ['tests', 'src'];
 const EXTENSIONS = ['.test.ts', '.test.tsx', '.spec.ts', '.spec.tsx'];
 
 function walk(dir) {
-  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  return entries.flatMap((entry) => {
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
       if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.astro') return [];
