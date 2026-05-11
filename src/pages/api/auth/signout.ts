@@ -1,13 +1,13 @@
-import type { APIRoute } from 'astro';
-import { createServerClient, parseCookieHeader } from '@supabase/ssr';
-import type { CookieOptions } from '@supabase/ssr';
-import type { Database } from '../../../types/database.types';
-import { isSameOrigin } from '../../../lib/request-origin';
+import type { CookieOptions } from "@supabase/ssr";
+import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import type { APIRoute } from "astro";
+import { isSameOrigin } from "../../../lib/request-origin";
+import type { Database } from "../../../types/database.types";
 
 function methodNotAllowed(): Response {
   return new Response(null, {
     status: 405,
-    headers: { Allow: 'POST' },
+    headers: { Allow: "POST" },
   });
 }
 
@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
-        getAll: () => parseCookieHeader(request.headers.get('Cookie') ?? ''),
+        getAll: () => parseCookieHeader(request.headers.get("Cookie") ?? ""),
         setAll: (cookiesToSet: { name: string; value: string; options: CookieOptions }[]) => {
           for (const { name, value, options } of cookiesToSet) {
             cookies.set(name, value, options);
@@ -34,5 +34,5 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   );
 
   await supabase.auth.signOut();
-  return redirect('/');
+  return redirect("/");
 };

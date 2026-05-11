@@ -11,16 +11,16 @@ type RateLimitDecision = {
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
 export function getClientIp(headers: Headers): string {
-  const cfConnectingIp = headers.get('cf-connecting-ip')?.trim();
+  const cfConnectingIp = headers.get("cf-connecting-ip")?.trim();
   if (cfConnectingIp) return cfConnectingIp;
 
-  const xForwardedFor = headers.get('x-forwarded-for');
+  const xForwardedFor = headers.get("x-forwarded-for");
   if (xForwardedFor) {
-    const firstIp = xForwardedFor.split(',')[0]?.trim();
+    const firstIp = xForwardedFor.split(",")[0]?.trim();
     if (firstIp) return firstIp;
   }
 
-  return headers.get('x-real-ip')?.trim() ?? 'unknown';
+  return headers.get("x-real-ip")?.trim() ?? "unknown";
 }
 
 function consumeRateLimitLocal(
@@ -56,20 +56,20 @@ async function consumeRateLimitRedis(
 
   try {
     const res = await fetch(`${url}/pipeline`, {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify([
-        ['INCR', key],
-        ['EXPIRE', key, ttlSeconds, 'NX'],
+        ["INCR", key],
+        ["EXPIRE", key, ttlSeconds, "NX"],
       ]),
     });
 
     if (!res.ok) throw new Error(`Upstash HTTP ${res.status}`);
 
-    const results = await res.json() as [{ result: number }, { result: number }];
+    const results = (await res.json()) as [{ result: number }, { result: number }];
     const count = results[0]?.result ?? 1;
 
     return {
@@ -77,7 +77,7 @@ async function consumeRateLimitRedis(
       retryAfterSeconds: ttlSeconds,
     };
   } catch (err) {
-    console.warn('rate-limit: Upstash indisponível, usando fallback local', err);
+    console.warn("rate-limit: Upstash indisponível, usando fallback local", err);
     return consumeRateLimitLocal(key, limit, windowMs, Date.now());
   }
 }
@@ -114,8 +114,8 @@ const ACCOUNT_LIMIT = 10;
 const ACCOUNT_WINDOW_MS = 60 * 60 * 1000;
 
 async function hashEmail(email: string): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(email.toLowerCase()));
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email.toLowerCase()));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export async function checkAccountLockout(email: string): Promise<RateLimitDecision> {
@@ -130,11 +130,16 @@ export async function checkAccountLockout(email: string): Promise<RateLimitDecis
         headers: { Authorization: `Bearer ${redisToken}` },
       });
       if (res.ok) {
-        const data = await res.json() as { result: string | null };
+        const data = (await res.json()) as { result: string | null };
         const count = data.result ? parseInt(data.result, 10) : 0;
-        return { allowed: count < ACCOUNT_LIMIT, retryAfterSeconds: Math.ceil(ACCOUNT_WINDOW_MS / 1000) };
+        return {
+          allowed: count < ACCOUNT_LIMIT,
+          retryAfterSeconds: Math.ceil(ACCOUNT_WINDOW_MS / 1000),
+        };
       }
-    } catch { /* fallback */ }
+    } catch {
+      /* fallback */
+    }
   }
 
   const now = Date.now();
@@ -155,7 +160,9 @@ export async function recordAccountFailure(email: string): Promise<void> {
   const redisToken = import.meta.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (redisUrl && redisToken) {
-    await consumeRateLimitRedis(key, ACCOUNT_LIMIT, ACCOUNT_WINDOW_MS, redisUrl, redisToken).catch(() => {});
+    await consumeRateLimitRedis(key, ACCOUNT_LIMIT, ACCOUNT_WINDOW_MS, redisUrl, redisToken).catch(
+      () => {},
+    );
     return;
   }
 
