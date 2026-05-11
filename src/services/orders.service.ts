@@ -71,16 +71,6 @@ export class OrdersService {
     }
   }
 
-  static async getByPaymentId(paymentId: string): Promise<Order | null> {
-    const { data } = await supabaseAdmin
-      .from("orders")
-      .select("*")
-      .eq("payment_id", paymentId)
-      .single();
-
-    return data;
-  }
-
   static async getAllAdmin(): Promise<Order[]> {
     const { data, error } = await supabaseAdmin
       .from("orders")
