@@ -1,3 +1,5 @@
+import { logger } from "./logger";
+
 type RateLimitEntry = {
   count: number;
   resetAt: number;
@@ -7,6 +9,14 @@ type RateLimitDecision = {
   allowed: boolean;
   retryAfterSeconds: number;
 };
+
+type UpstashPipelineResult = Array<{ result?: unknown }>;
+
+function isUpstashPipelineResult(value: unknown): value is UpstashPipelineResult {
+  return (
+    Array.isArray(value) && value.every((entry) => typeof entry === "object" && entry !== null)
+  );
+}
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
@@ -69,15 +79,21 @@ async function consumeRateLimitRedis(
 
     if (!res.ok) throw new Error(`Upstash HTTP ${res.status}`);
 
-    const results = (await res.json()) as [{ result: number }, { result: number }];
-    const count = results[0]?.result ?? 1;
+    const payload: unknown = await res.json();
+    if (!isUpstashPipelineResult(payload) || payload.length < 1) {
+      throw new Error("Upstash unexpected response shape");
+    }
+    const firstResult = payload[0]?.result;
+    const count = typeof firstResult === "number" ? firstResult : 1;
 
     return {
       allowed: count <= limit,
       retryAfterSeconds: ttlSeconds,
     };
   } catch (err) {
-    console.warn("rate-limit: Upstash indisponível, usando fallback local", err);
+    logger.warn("rate-limit.upstash.fallback", {
+      err: err instanceof Error ? err.message : String(err),
+    });
     return consumeRateLimitLocal(key, limit, windowMs, Date.now());
   }
 }
