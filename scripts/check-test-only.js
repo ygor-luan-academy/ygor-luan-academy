@@ -5,17 +5,15 @@ import { join, extname } from 'path';
 const TEST_DIRS = ['tests', 'src'];
 const EXTENSIONS = ['.test.ts', '.test.tsx', '.spec.ts', '.spec.tsx'];
 
-function walk(dir, files = []) {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+function walk(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.astro') continue;
-      walk(fullPath, files);
-    } else if (EXTENSIONS.some(ext => entry.name.endsWith(ext))) {
-      files.push(fullPath);
+      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.astro') return [];
+      return walk(fullPath);
     }
-  }
-  return files;
+    return EXTENSIONS.some((ext) => entry.name.endsWith(ext)) ? [fullPath] : [];
+  });
 }
 
 function findOnlys(files) {

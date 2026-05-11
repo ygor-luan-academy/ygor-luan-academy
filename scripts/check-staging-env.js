@@ -1,12 +1,4 @@
 #!/usr/bin/env node
-
-/**
- * Script helper para verificar se todas as variáveis de ambiente
- * necessárias para staging estão configuradas no GitHub.
- *
- * Uso: node scripts/check-staging-env.js
- */
-
 const REQUIRED_SECRETS = [
   'VERCEL_TOKEN',
   'VERCEL_ORG_ID',
